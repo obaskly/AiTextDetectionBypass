@@ -15,9 +15,9 @@ This script automates the process of paraphrasing articles using undetectable.ai
 
 1. Clone this repository to your local machine.
 
-   ```bash
-   git clone https://github.com/obaskly/AiTextDetectionBypass.git
-   ```
+```bash
+git clone https://github.com/obaskly/AiTextDetectionBypass.git
+```
 
 2. Install the required Python packages.
 
