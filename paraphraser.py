@@ -23,7 +23,7 @@ def extract_verify_link(text):
 
 def main(purpose_choice, readability_choice, article_file_path):
     try:
-        with open(article_file_path, 'r') as article_file:
+        with open(article_file_path, 'r', encoding="utf8") as article_file:
             article_text = article_file.read()
 
         # Split the article into chunks of 250 words
@@ -82,6 +82,7 @@ def main(purpose_choice, readability_choice, article_file_path):
                     driver.get(verify_link)
                     time.sleep(1)
                     driver.get("https://undetectable.ai")
+                    time.sleep(1.5)
                 else:
                     print(f"{Fore.RED}Verify link not found.")
 
@@ -112,8 +113,7 @@ def main(purpose_choice, readability_choice, article_file_path):
 
                 humanize = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[2]/div[2]/button[2]').click()
 
-                paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[8]/div[2]/div[1]/div[4]/button')))
-                time.sleep(1)
+                paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="gCopyOutput"]')))
                 paraphrased.click()
 
                 time.sleep(1)
