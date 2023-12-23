@@ -86,9 +86,10 @@ def main(purpose_choice, readability_choice, article_file_path):
                 else:
                     print(f"{Fore.RED}Verify link not found.")
 
-                purpose = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[1]/div[1]/div[1]/div[2]/select')
-                readability = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[1]/div[1]/div[1]/div[1]/select')
-
+                wait = WebDriverWait(driver, 10)
+                purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dPurpose"]')))
+                readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="dReadability"]')))
+                
                 select1 = Select(purpose)
                 select2 = Select(readability)
 
@@ -101,17 +102,17 @@ def main(purpose_choice, readability_choice, article_file_path):
                 if 1 <= readability_choice <= len(options2) - 1:
                     select2.select_by_index(readability_choice)
 
-                driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[2]/div[1]/button').click()
-                driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[1]/div[2]/div[2]/div[2]').click()
+                driver.find_element(By.XPATH, '//*[@id="bBalanced"]').click()
+                driver.find_element(By.XPATH, '//*[@id="checkBoxTerms"]').click()
 
                 # Get the next chunk to submit
                 chunk = article_chunks.pop(0)
 
-                textarea = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[1]/textarea')
+                textarea = driver.find_element(By.XPATH, '//*[@id="paste"]')
                 textarea.clear()
                 textarea.send_keys(chunk)
 
-                humanize = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div[2]/div[2]/button[2]').click()
+                humanize = driver.find_element(By.XPATH, '//*[@id="bHumanize"]').click()
 
                 paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="gCopyOutput"]')))
                 paraphrased.click()
