@@ -1,6 +1,6 @@
 colorama==0.4.6
-fake-useragent==1.2.1
+fake-useragent==1.4.0
 pyperclip==1.8.2
-selenium==4.11.2
-tempmail-python==2.3.0
+selenium==4.16.0
+tempmail-python==2.3.2
 PyQt6==6.6.1
