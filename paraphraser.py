@@ -133,6 +133,11 @@ def main(purpose_choice, readability_choice, article_file_path):
 
     except Exception as e:
         print(f"{Fore.RED}Error during article submission: {e}")
+        raise
+        
+"""
+
+# if you want to use the script in console mode, uncomment this area and run paraphraser.py
 
 if __name__ == "__main__":
     try:
@@ -145,3 +150,4 @@ if __name__ == "__main__":
     except:
         print(f"{Fore.RED}Aborting ...")
         sys.exit()
+"""
