@@ -1,7 +1,6 @@
 import time, re, sys, random, string, pyperclip
 from colorama import Fore, init
 from tempmail import EMail
-from fake_useragent import UserAgent
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -36,14 +35,12 @@ def main(purpose_choice, readability_choice, article_file_path):
             return
 
         # Initialize the WebDriver
-        user_agent = UserAgent()
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         options.add_argument("--log-level=3")
         options.add_argument('--no-proxy-server')
         options.add_argument("--incognito")
-        options.add_argument(f"user-agent={user_agent.random}")
         options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
 
         prefs = {"profile.default_content_setting_values.notifications": 2}
@@ -67,12 +64,12 @@ def main(purpose_choice, readability_choice, article_file_path):
                 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="vplpzd"]/div[7]/div[2]'))).click()
 
                 # Enter email and password
-                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/input'))).send_keys(str(email))
+                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))).send_keys(str(email))
                 driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
 
                 # Check terms and conditions and click register
-                driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[4]/button').click()
-                driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/button').click()
+                driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
 
                 # Wait for the confirmation email to arrive
                 msg = email.wait_for_message()
@@ -135,10 +132,7 @@ def main(purpose_choice, readability_choice, article_file_path):
         print(f"{Fore.RED}Error during article submission: {e}")
         raise
         
-"""
-
-# if you want to use the script in console mode, uncomment this area and run paraphraser.py
-
+'''
 if __name__ == "__main__":
     try:
         print(f'{Fore.GREEN}1. General Writing\n2. Essay\n3. Article\n4. Marketing Material\n5. Story\n6. Cover letter\n7. Report\n8. Business Material\n9. Legal Material\n')
@@ -150,4 +144,4 @@ if __name__ == "__main__":
     except:
         print(f"{Fore.RED}Aborting ...")
         sys.exit()
-"""
+'''
