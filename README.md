@@ -44,3 +44,8 @@ Sit back and relax while the script paraphrases your article!
 
 - Python 3.x
 - Google Chrome installed (chromedriver is used by Selenium)
+  
+## Script in action
+
+https://github.com/obaskly/AiTextDetectionBypass/assets/11092871/7fc4ccf0-d97f-43dd-a987-9b7e6812c174
+
