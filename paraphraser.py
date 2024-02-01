@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+import pyautogui
 init()
 
 def generate_password(length=10):
@@ -64,15 +65,20 @@ def main(purpose_choice, readability_choice, article_file_path):
                 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="vplpzd"]/div[7]/div[2]'))).click()
 
                 # Enter email and password
-                email_input = WebDriverWait(driver, 20).until(
-                    EC.presence_of_element_located((By.XPATH, '/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))
-                )
-                driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
-                email_input.send_keys(str(email))
+                time.sleep(1.5)
+                pyautogui.press('tab')
+                pyautogui.press('enter')
+                time.sleep(2)
+                pyautogui.press('tab')
+                pyautogui.press('tab')
+                pyautogui.write(str(email))
+
                 driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
 
                 # Check terms and conditions and click register
-                driver.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                pyautogui.press('tab')
+                pyautogui.press('enter')
+
                 driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
 
                 # Wait for the confirmation email to arrive
