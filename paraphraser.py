@@ -6,7 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-import pyautogui
+from pyautogui import write as wt
+from pyautogui import press as pt
 init()
 
 def generate_password(length=10):
@@ -66,18 +67,18 @@ def main(purpose_choice, readability_choice, article_file_path):
 
                 # Enter email and password
                 time.sleep(1.5)
-                pyautogui.press('tab')
-                pyautogui.press('enter')
+                pt('tab')
+                pt('enter')
                 time.sleep(2)
-                pyautogui.press('tab')
-                pyautogui.press('tab')
-                pyautogui.write(str(email))
+                pt('tab')
+                pt('tab')
+                wt(str(email))
 
                 driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
 
                 # Check terms and conditions and click register
-                pyautogui.press('tab')
-                pyautogui.press('enter')
+                pt('tab')
+                pt('enter')
 
                 driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
 
