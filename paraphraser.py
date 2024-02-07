@@ -6,8 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from pyautogui import write as wt
-from pyautogui import press as pt
+#from pyautogui import write as wt
+#from pyautogui import press as pt
 init()
 
 def generate_password(length=10):
@@ -64,23 +64,34 @@ def main(purpose_choice, readability_choice, article_file_path):
 
                 # Click registration button
                 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="vplpzd"]/div[7]/div[2]'))).click()
-
+                
                 # Enter email and password
+                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))).send_keys(str(email))
+                driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
+
+                '''
+                # do it with pyautogui if you want
                 time.sleep(1.5)
                 pt('tab')
                 pt('enter')
-                time.sleep(2)
+                time.sleep(4)
                 pt('tab')
                 pt('tab')
+                time.sleep(0.5)
                 wt(str(email))
-
-                driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
+                '''
 
                 # Check terms and conditions and click register
+                driver.find_element(By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
+
+                '''
+                # do it with pyautogui if you want
                 pt('tab')
                 pt('enter')
-
-                driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
+                pt('tab')
+                pt('enter')
+                '''
 
                 # Wait for the confirmation email to arrive
                 msg = email.wait_for_message()
@@ -147,9 +158,9 @@ def main(purpose_choice, readability_choice, article_file_path):
 if __name__ == "__main__":
     try:
         print(f'{Fore.GREEN}1. General Writing\n2. Essay\n3. Article\n4. Marketing Material\n5. Story\n6. Cover letter\n7. Report\n8. Business Material\n9. Legal Material\n')
-        purpose_choice = int(input(f'{Fore.CYAN}Select the purpose of your writing: '))
+        purpose_choice = int(input(f'{Fore.CYAN}Select the purpose of your writing: {Fore.GREEN}'))
         print(f'{Fore.GREEN}\n1. High School\n2. University\n3. Doctorate\n4. Journalist\n5. Marketing')
-        readability_choice = int(input(f'{Fore.CYAN}Select the readability of your writing: '))
+        readability_choice = int(input(f'\n{Fore.CYAN}Select the readability of your writing: {Fore.GREEN}'))
         article_file_path = input(f"\n{Fore.CYAN}Enter the path to the text file containing your article: {Fore.GREEN}")
         main(purpose_choice, readability_choice, article_file_path)
     except:
