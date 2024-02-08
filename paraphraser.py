@@ -66,7 +66,14 @@ def main(purpose_choice, readability_choice, article_file_path):
                 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="vplpzd"]/div[7]/div[2]'))).click()
                 
                 # Enter email and password
-                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))).send_keys(str(email))
+                try:
+                    WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))).send_keys(str(email))
+                except:
+                    try:
+                        WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input"))).send_keys(str(email))
+                    except:
+                        print("Both XPaths failed to locate the email input.")
+
                 driver.find_element(By.XPATH, '//*[@id="pws"]').send_keys(password)
 
                 '''
@@ -82,7 +89,14 @@ def main(purpose_choice, readability_choice, article_file_path):
                 '''
 
                 # Check terms and conditions and click register
-                driver.find_element(By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                try:
+                    driver.find_element(By.XPATH, '/html/body/div[5]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click
+                except:
+                    try:
+                        driver.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                    except:
+                        print("Both XPaths failed to locate the button.")
+
                 driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
 
                 '''
@@ -153,7 +167,6 @@ def main(purpose_choice, readability_choice, article_file_path):
     except Exception as e:
         print(f"{Fore.RED}Error during article submission: {e}")
         raise
-
 '''
 if __name__ == "__main__":
     try:
