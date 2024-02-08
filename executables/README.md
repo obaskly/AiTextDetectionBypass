@@ -5,7 +5,7 @@ Download:
 1. XPATHs + pyautogui Method
   https://www.mediafire.com/file/n53vxo834qv1n6m/AiTextDetectionBypass.rar/file
 2. XPATHs only Method
-  https://www.mediafire.com/file/s4zdo2mwvbswep0/AiTextDetectionBypass.rar/file
+  https://www.mediafire.com/file/63ddfh2bory5ipr/AiTextDetectionBypass.rar/file
 
 Password: github.com/obaskly
 
