@@ -70,7 +70,7 @@ def main(purpose_choice, readability_choice, article_file_path):
                     WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input'))).send_keys(str(email))
                 except:
                     try:
-                        WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input"))).send_keys(str(email))
+                        WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[3]/div/input"))).send_keys(str(email))
                     except:
                         print("Both XPaths failed to locate the email input.")
 
@@ -93,9 +93,9 @@ def main(purpose_choice, readability_choice, article_file_path):
                     driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click
                 except:
                     try:
-                        driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
+                        driver.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div/div/div/div/div[2]/div[5]/button').click()
                     except:
-                        print("Both XPaths failed to locate the button.")
+                        print("Both XPaths failed to locate the terms button.")
 
                 driver.find_element(By.XPATH, '//*[@id="bSignup"]').click()
 
