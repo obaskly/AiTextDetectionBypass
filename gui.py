@@ -48,6 +48,7 @@ class ParaphrasingApp(QWidget):
         self.purposeLabel = QLabel('Purpose of Writing:')
         self.readabilityLabel = QLabel('Readability Level:')
         self.filePathLabel = QLabel('Article File Path:')
+        self.emailLabel = QLabel('Email Address:')
 
         self.purposeComboBox = QComboBox()
         self.purposeComboBox.addItems(['General Writing', 'Essay', 'Article', 'Marketing Material', 'Story', 'Cover letter', 'Report', 'Business Material', 'Legal Material'])
@@ -58,6 +59,9 @@ class ParaphrasingApp(QWidget):
         self.filePathLineEdit = QLineEdit()
         self.browseButton = QPushButton('Browse')
         self.browseButton.clicked.connect(self.browseFile)
+
+        self.emailLineEdit = QLineEdit()
+        self.emailLineEdit.setPlaceholderText('Enter your email address')
 
         self.startButton = QPushButton('Start Paraphrasing')
         self.startButton.clicked.connect(self.startParaphrasing)
@@ -70,11 +74,13 @@ class ParaphrasingApp(QWidget):
         layout.addWidget(self.filePathLabel)
         layout.addWidget(self.filePathLineEdit)
         layout.addWidget(self.browseButton)
+        layout.addWidget(self.emailLabel)
+        layout.addWidget(self.emailLineEdit)
         layout.addWidget(self.startButton)
 
         self.setLayout(layout)
         self.setWindowTitle('AiDetectionBypasser V1.0')
-        self.setGeometry(300, 300, 400, 300)
+        self.setGeometry(300, 300, 400, 400)
 
     def browseFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/home')
@@ -84,9 +90,14 @@ class ParaphrasingApp(QWidget):
         purpose_choice = self.purposeComboBox.currentIndex() + 1
         readability_choice = self.readabilityComboBox.currentIndex() + 1
         article_file_path = self.filePathLineEdit.text()
+        email_address = self.emailLineEdit.text()
+
+        if not email_address:
+            QMessageBox.warning(self, 'Input Error', 'Please enter an email address.')
+            return
 
         try:
-            main(purpose_choice, readability_choice, article_file_path)
+            main(purpose_choice, readability_choice, article_file_path, email_address)
             QMessageBox.information(self, 'Success', 'Article has been paraphrased successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
