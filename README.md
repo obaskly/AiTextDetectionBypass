@@ -30,25 +30,26 @@ cd AiTextDetectionBypass
 Prepare your article in a text file (e.g., article.txt).
 
 3. GMAIL SETUP
-  1. go to https://console.cloud.google.com/
-  2. create new project
-  3. click on 'api and services'
-  4. type "Gmail API" and select it from the results.
-  5. Click the Enable button.
+
+  . go to https://console.cloud.google.com/
+  . create new project
+  . click on 'api and services'
+  . type "Gmail API" and select it from the results.
+  . Click the Enable button.
   
-  Set Up OAuth Consent Screen
-  6. In the left-hand menu, go to APIs & Services > OAuth consent screen.
-  7. Choose External 
-  8. Add the necessary scopes: https://www.googleapis.com/auth/gmail.readonly.
-  9. Go to the Test users section.
-  10. Add the Gmail address you want to use for paraphrasing.
+  ## Set Up OAuth Consent Screen
+  . In the left-hand menu, go to APIs & Services > OAuth consent screen.
+  . Choose External 
+  . Add the necessary scopes: https://www.googleapis.com/auth/gmail.readonly.
+  . Go to the Test users section.
+  . Add the Gmail address you want to use for paraphrasing.
   Click Save and Continue.
   
-  Create OAuth 2.0 Credentials
-  11. Go to APIs & Services > Credentials.
-  12. Click Create Credentials > OAuth 2.0 Client IDs.
-  13. Choose Desktop App as the application type.
-  14. Download the credentials.json file once it’s created and put it in the same directory as the script.
+  ## Create OAuth 2.0 Credentials
+  . Go to APIs & Services > Credentials.
+  . Click Create Credentials > OAuth 2.0 Client IDs.
+  . Choose Desktop App as the application type.
+  . Download the credentials.json file once it’s created and put it in the same directory as the script.
 
 4. Run the script.
 
