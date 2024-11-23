@@ -37,7 +37,7 @@ Prepare your article in a text file (e.g., article.txt).
   . type "Gmail API" and select it from the results.
   . Click the Enable button.
   
-  ## Set Up OAuth Consent Screen
+  ### Set Up OAuth Consent Screen
   . In the left-hand menu, go to APIs & Services > OAuth consent screen.
   . Choose External 
   . Add the necessary scopes: https://www.googleapis.com/auth/gmail.readonly.
@@ -45,7 +45,7 @@ Prepare your article in a text file (e.g., article.txt).
   . Add the Gmail address you want to use for paraphrasing.
   Click Save and Continue.
   
-  ## Create OAuth 2.0 Credentials
+  ### Create OAuth 2.0 Credentials
   . Go to APIs & Services > Credentials.
   . Click Create Credentials > OAuth 2.0 Client IDs.
   . Choose Desktop App as the application type.
