@@ -75,7 +75,7 @@ Select the writing purpose, readability level, and provide the path to your arti
 
 If you don't want to use the GUI mode, go to paraphraser.py and uncomment the last part and run it.
 
-The script will create an accounts.txt file with temporary email accounts and save the paraphrased content to paraphrased.txt.
+The script will save the paraphrased content to paraphrased.txt.
 Sit back and relax while the script paraphrases your article!
 
 ## Prerequisites
