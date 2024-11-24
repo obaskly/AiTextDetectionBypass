@@ -257,6 +257,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
         print(f"{Fore.RED}Error during article submission: {e}")
         raise
 
+'''
 if __name__ == "__main__":
     try:
         print(f'{Fore.GREEN}1. General Writing\n2. Essay\n3. Article\n4. Marketing Material\n5. Story\n6. Cover letter\n7. Report\n8. Business Material\n9. Legal Material\n')
@@ -270,3 +271,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"{Fore.RED}Aborting due to error: {e}")
         raise
+'''
