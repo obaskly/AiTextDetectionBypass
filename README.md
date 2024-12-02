@@ -27,8 +27,6 @@ cd AiTextDetectionBypass
   pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
   ```
 
-Prepare your article in a text file (e.g., article.txt).
-
 3. GMAIL SETUP
 
   . go to https://console.cloud.google.com
@@ -71,9 +69,10 @@ Prepare your article in a text file (e.g., article.txt).
   python gui.py
   ```
 
+Prepare your article in a text file (e.g., article.txt).
 Select the writing purpose, readability level, and provide the path to your article.
 
-If you don't want to use the GUI mode, go to paraphraser.py and uncomment the last part and run it.
+If you don't want to use the GUI mode, open `paraphraser.py`, uncomment the last part, and run it.
 
 The script will save the paraphrased content to paraphrased.txt.
 Sit back and relax while the script paraphrases your article!
