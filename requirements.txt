@@ -3,3 +3,4 @@ pyperclip
 selenium
 PyQt6
 pyautogui
+undetected-chromedriver
