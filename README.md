@@ -2,6 +2,10 @@
 
 This script automates the process of paraphrasing articles using undetectable.ai website. It splits the input article into 250-word chunks and paraphrases each chunk. The paraphrased content is then saved to a file.
 
+## NEW
+
+You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
+
 ## Features
 
 - Paraphrase long articles automatically.
