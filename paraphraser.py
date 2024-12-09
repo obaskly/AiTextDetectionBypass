@@ -5,6 +5,7 @@ import random
 import json
 import pyperclip
 import base64
+import requests
 from colorama import Fore
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,10 +13,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from fake_useragent import UserAgent
+import undetected_chromedriver as uc
 
 # Gmail API scope
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -91,29 +96,23 @@ def get_message_body(message):
             if part['mimeType'] == 'text/html':
                 msg_data = part['body'].get('data', '')
                 decoded_data = base64.urlsafe_b64decode(msg_data).decode('utf-8')
-                print(f"Extracted HTML part: {decoded_data[:500]}")  # Print part of the content for debugging
+                print(f"Extracted HTML part: {decoded_data[:500]}") 
                 return decoded_data
             # Fallback to plain text if no HTML part found
             elif part['mimeType'] == 'text/plain':
                 msg_data = part['body'].get('data', '')
                 decoded_data = base64.urlsafe_b64decode(msg_data).decode('utf-8')
-                print(f"Extracted plain text part: {decoded_data[:500]}...")  # Print part of the content for debugging
+                print(f"Extracted plain text part: {decoded_data[:500]}")  
                 return decoded_data
     else:
         # Handle case where the message does not have parts (e.g., it's a single text/plain or text/html email)
         msg_data = message['payload']['body'].get('data', '')
         decoded_data = base64.urlsafe_b64decode(msg_data).decode('utf-8')
-        print(f"Extracted single body message: {decoded_data[:500]}...")  # Print part of the content for debugging
+        print(f"Extracted single body message: {decoded_data[:500]}")  
         return decoded_data
     return ''
 
-def automate_sign_in(temp_email):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--log-level=3")
-    options.add_argument("--incognito")
-    options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
-    driver = webdriver.Chrome(options=options)
-
+def automate_sign_in(driver, temp_email):
     try:
         # Go to the Undetectable AI login page
         driver.get('https://undetectable.ai/login')
@@ -130,13 +129,10 @@ def automate_sign_in(temp_email):
         )
         driver.execute_script("arguments[0].click();", sign_in_button)
 
-        print(f"Sign-in attempt made with email: {temp_email}")
-    
+        print(f"\nSign-in attempt made with email: {temp_email}")
+
     except Exception as e:
         print(f"Error during sign-in process: {e}")
-    
-    finally:
-        driver.quit()
 
 def wait_for_confirmation_email(service, max_wait_time=300, poll_interval=10):
     start_time = time.time()
@@ -149,6 +145,101 @@ def wait_for_confirmation_email(service, max_wait_time=300, poll_interval=10):
         time.sleep(poll_interval)  # Wait for the next poll
     print(f"{Fore.RED}Timeout: Confirmation email not received within {max_wait_time} seconds.")
     return None
+
+def monitor_url_change(driver, target_success_url, error_url, timeout=10):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        current_url = driver.current_url
+
+        if error_url in current_url:
+            print(f"{Fore.RED}Magic link expired detected in URL: {current_url}")
+            return False  # Error detected
+
+        if target_success_url in current_url:
+            print(f"{Fore.GREEN}Magic link verified successfully. Redirected to: {current_url}")
+            return True  # Success detected
+
+        time.sleep(1)  # Poll every 1s
+
+    print(f"{Fore.YELLOW}Timeout reached while monitoring URL.")
+    return None  # Timeout
+
+def process_confirmation_link(driver, verify_link, service, email):
+    try:
+        # Open the magic link
+        driver.get(verify_link)
+
+        # Monitor for success or error
+        result = monitor_url_change(driver, 
+                                    target_success_url="https://undetectable.ai/pricing", 
+                                    error_url="?error=Verification", 
+                                    timeout=10)
+
+        if result is True:
+            print(f"{Fore.GREEN}Verification successful.")
+            return True
+        elif result is False:
+            print(f"{Fore.RED}Magic link expired. Switching to OTP mode.")
+            # Re-enter the email for OTP
+            email_input = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//input[@name='email']"))
+            )
+            email_input.clear()
+            email_input.send_keys(email)
+
+            continue_button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Continue']"))
+            )
+            driver.execute_script("arguments[0].click();", continue_button)
+
+            print(f"{Fore.YELLOW}Waiting for OTP input fields...")
+
+            # Wait for the OTP fields to appear
+            otp_fields = WebDriverWait(driver, 20).until(
+                EC.presence_of_all_elements_located((By.XPATH, "//input[starts-with(@id, 'otp-input-')]"))
+            )
+
+            # Fetch the OTP from email
+            confirmation_email = wait_for_confirmation_email(service)
+            if not confirmation_email:
+                print(f"{Fore.RED}Failed to retrieve OTP email.")
+                return False
+
+            message_body = get_message_body(confirmation_email)
+            otp_code_match = re.search(r"Your OTP code is: (\d{6})", message_body)
+            if not otp_code_match:
+                print(f"{Fore.RED}OTP not found in the email.")
+                return False
+
+            otp_code = otp_code_match.group(1)
+            print(f"{Fore.GREEN}Retrieved OTP: {otp_code}")
+
+            # Input the OTP into the fields
+            for i, digit in enumerate(otp_code):
+                otp_fields[i].send_keys(digit)
+
+            # Submit the OTP
+            continue_button2 = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Continue']"))
+            )
+            driver.execute_script("arguments[0].click();", continue_button2)
+
+            # Verify if the OTP submission is successful
+            result = monitor_url_change(driver, 
+                                        target_success_url="https://undetectable.ai/pricing", 
+                                        error_url="?error=Verification", 
+                                        timeout=10)
+
+            if result:
+                print(f"{Fore.GREEN}OTP verification successful.")
+                return True
+            else:
+                print(f"{Fore.RED}OTP verification failed.")
+                return False
+    except Exception as e:
+        print(f"{Fore.RED}Error during OTP handling: {e}")
+        return False
+
 
 def main(purpose_choice, readability_choice, article_file_path, base_email):
     try:
@@ -164,45 +255,46 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
             print(f"{Fore.RED}Your file is empty.")
             return
 
+        # Initialize fake user agent generator
+        ua = UserAgent()
+        fake_user_agent = ua.random
+
         # Initialize the WebDriver
-        options = webdriver.ChromeOptions()
+        options = uc.ChromeOptions()
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         options.add_argument("--log-level=3")
         options.add_argument('--no-proxy-server')
-        options.add_argument("--incognito")
-        options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
+        options.add_argument(f"user-agent={fake_user_agent}")
+
+        driver = uc.Chrome(options=options)
 
         # Authenticate Gmail and get the service object
         creds = authenticate_gmail()
         service = get_gmail_service(creds)
 
         while article_chunks:
-            # Generate Gmail variant email
             email_variant = generate_gmail_variation(base_email)
+            automate_sign_in(driver, email_variant)
 
-            # Automate the sign-in process using the new function
-            automate_sign_in(email_variant)
-
-            driver = webdriver.Chrome(options=options)
-
-            # Wait for the confirmation email to arrive using the polling method
             confirmation_email = wait_for_confirmation_email(service)
             if confirmation_email:
                 message_body = get_message_body(confirmation_email)
                 verify_link = extract_verify_link(message_body)
                 if verify_link:
-                    driver.get(verify_link)
-                    time.sleep(1)
+                    success = process_confirmation_link(driver, verify_link, service, email_variant)
+                    if not success:
+                        continue  # Retry with a new email
                 else:
                     print(f"{Fore.RED}Verify link not found in email.")
+                    continue  # Retry with a new email
             else:
                 print(f"{Fore.RED}No confirmation email found.")
-
-            driver.get('https://undetectable.ai/')
+                continue  # Retry with a new email
 
             # Now fill out the form to paraphrase the text
             try:
+                driver.get('https://undetectable.ai/')
                 wait = WebDriverWait(driver, 10)
                 purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[2]/select')))
                 readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[1]/select')))
@@ -231,9 +323,9 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
                 humanize = driver.find_element(By.ID, 'humanize-tooltip')
                 driver.execute_script("arguments[0].click();", humanize)
                 
-                try : 
+                try:
                     driver.execute_script("document.querySelector('.iubenda-banner-content').style.display = 'none';")
-                except: 
+                except:
                     pass
 
                 paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="copy-output"]')))
@@ -248,14 +340,15 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
 
             except Exception as e:
                 print(f"{Fore.RED}Error during paraphrasing: {e}")
-            finally:
-                driver.quit()
-                
+
         print(f"{Fore.GREEN}\nArticle has been paraphrased successfully.")
 
     except Exception as e:
         print(f"{Fore.RED}Error during article submission: {e}")
         raise
+
+    finally:
+        driver.quit()
 
 '''
 if __name__ == "__main__":
