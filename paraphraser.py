@@ -20,7 +20,6 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from fake_useragent import UserAgent
-import undetected_chromedriver as uc
 
 # Gmail API scope
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -242,6 +241,7 @@ def process_confirmation_link(driver, verify_link, service, email):
 
 
 def main(purpose_choice, readability_choice, article_file_path, base_email):
+    driver = None
     try:
         with open(article_file_path, 'r', encoding="utf8") as article_file:
             article_text = article_file.read()
@@ -260,14 +260,17 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
         fake_user_agent = ua.random
 
         # Initialize the WebDriver
-        options = uc.ChromeOptions()
+        options = webdriver.ChromeOptions()
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         options.add_argument("--log-level=3")
         options.add_argument('--no-proxy-server')
         options.add_argument(f"user-agent={fake_user_agent}")
+        options.add_argument("--incognito")
+        options.add_argument("--start-maximized")
+        options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
 
-        driver = uc.Chrome(options=options)
+        driver = webdriver.Chrome(options=options)
 
         # Authenticate Gmail and get the service object
         creds = authenticate_gmail()
@@ -348,7 +351,8 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
         raise
 
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
 
 '''
 if __name__ == "__main__":
