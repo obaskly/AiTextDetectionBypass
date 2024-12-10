@@ -239,6 +239,17 @@ def process_confirmation_link(driver, verify_link, service, email):
         print(f"{Fore.RED}Error during OTP handling: {e}")
         return False
 
+def initialize_driver(fake_user_agent):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--log-level=3")
+    options.add_argument('--no-proxy-server')
+    options.add_argument(f"user-agent={fake_user_agent}")
+    options.add_argument("--incognito")
+    options.add_argument("--start-maximized")
+    options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
+    return webdriver.Chrome(options=options)
 
 def main(purpose_choice, readability_choice, article_file_path, base_email):
     driver = None
@@ -257,47 +268,52 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
 
         # Initialize fake user agent generator
         ua = UserAgent()
-        fake_user_agent = ua.random
 
-        # Initialize the WebDriver
-        options = webdriver.ChromeOptions()
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--log-level=3")
-        options.add_argument('--no-proxy-server')
-        options.add_argument(f"user-agent={fake_user_agent}")
-        options.add_argument("--incognito")
-        options.add_argument("--start-maximized")
-        options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
-
-        driver = webdriver.Chrome(options=options)
-
-        # Authenticate Gmail and get the service object
-        creds = authenticate_gmail()
-        service = get_gmail_service(creds)
-
+        # Process each chunk
         while article_chunks:
-            email_variant = generate_gmail_variation(base_email)
-            automate_sign_in(driver, email_variant)
+            fake_user_agent = ua.random
+            driver = initialize_driver(fake_user_agent)
+            
+            try:
+                # Generate a Gmail variation and sign in
+                email_variant = generate_gmail_variation(base_email)
+                automate_sign_in(driver, email_variant)
 
-            confirmation_email = wait_for_confirmation_email(service)
-            if confirmation_email:
-                message_body = get_message_body(confirmation_email)
-                verify_link = extract_verify_link(message_body)
-                if verify_link:
-                    success = process_confirmation_link(driver, verify_link, service, email_variant)
-                    if not success:
+                # Wait for confirmation email and process link
+                creds = authenticate_gmail()
+                service = get_gmail_service(creds)
+                confirmation_email = wait_for_confirmation_email(service)
+                
+                if confirmation_email:
+                    message_body = get_message_body(confirmation_email)
+                    verify_link = extract_verify_link(message_body)
+                    if verify_link:
+                        success = process_confirmation_link(driver, verify_link, service, email_variant)
+                        if not success:
+                            print(f"{Fore.RED}Verification failed. Retrying with a new account.")
+                            continue  # Retry with a new email
+                    else:
+                        print(f"{Fore.RED}Verify link not found in email.")
                         continue  # Retry with a new email
                 else:
-                    print(f"{Fore.RED}Verify link not found in email.")
+                    print(f"{Fore.RED}No confirmation email found.")
                     continue  # Retry with a new email
-            else:
-                print(f"{Fore.RED}No confirmation email found.")
-                continue  # Retry with a new email
 
-            # Now fill out the form to paraphrase the text
-            try:
+                # Submit the chunk for paraphrasing
+                chunk = article_chunks.pop(0)
                 driver.get('https://undetectable.ai/')
+
+                try:
+                    banner = WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'iubenda-banner-content'))
+                    )
+                    if banner:
+                        print(f"{Fore.YELLOW}Banner detected. Removing it.")
+                        driver.execute_script("document.querySelector('.iubenda-banner-content').style.display = 'none';")
+                except TimeoutException:
+                    # Banner not present, continue normally
+                    pass
+
                 wait = WebDriverWait(driver, 10)
                 purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[2]/select')))
                 readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[1]/select')))
@@ -305,54 +321,48 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
                 select1 = Select(purpose)
                 select2 = Select(readability)
 
-                options1 = select1.options
-                options2 = select2.options
-
-                if 1 <= purpose_choice <= len(options1) - 1:
+                if 1 <= purpose_choice <= len(select1.options) - 1:
                     select1.select_by_index(purpose_choice)
 
-                if 1 <= readability_choice <= len(options2) - 1:
+                if 1 <= readability_choice <= len(select2.options) - 1:
                     select2.select_by_index(readability_choice)
-
-                # Get the next chunk to submit
-                chunk = article_chunks.pop(0)
 
                 textarea = driver.find_element(By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[2]/div/textarea')
                 textarea.clear()
                 textarea.send_keys(chunk)
 
-                time.sleep(1)
-
                 humanize = driver.find_element(By.ID, 'humanize-tooltip')
                 driver.execute_script("arguments[0].click();", humanize)
-                
+
+                # Check if the popup for buying words appears
                 try:
-                    driver.execute_script("document.querySelector('.iubenda-banner-content').style.display = 'none';")
-                except:
+                    popup_present = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, "//button[@aria-label='View Paid Plans']"))
+                    )
+                    if popup_present:
+                        print(f"{Fore.YELLOW}Not enough words left. Switching to a new email session.")
+                        continue  # Retry with a new email
+                except TimeoutException:
+                    # Popup did not appear, proceed normally
                     pass
 
                 paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="copy-output"]')))
                 paraphrased.click()
 
-                time.sleep(1)
-
                 copied_content = pyperclip.paste()
-
                 with open('paraphrased.txt', 'a') as new:
                     new.write(f'{copied_content}\n')
 
             except Exception as e:
-                print(f"{Fore.RED}Error during paraphrasing: {e}")
+                print(f"{Fore.RED}Error during chunk processing: {e}")
+            finally:
+                if driver:
+                    driver.quit()
 
         print(f"{Fore.GREEN}\nArticle has been paraphrased successfully.")
 
     except Exception as e:
-        print(f"{Fore.RED}Error during article submission: {e}")
-        raise
-
-    finally:
-        if driver:
-            driver.quit()
+        print(f"{Fore.RED}Error during processing: {e}")
 
 '''
 if __name__ == "__main__":
