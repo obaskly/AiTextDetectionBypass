@@ -345,14 +345,11 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
                 purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[2]/select')))
                 readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[1]/div/div[1]/div[1]/select')))
                 
-                select1 = Select(purpose)
-                select2 = Select(readability)
+                purpose_select = Select(purpose)
+                readability_select = Select(readability)
 
-                if 1 <= purpose_choice <= len(select1.options) - 1:
-                    select1.select_by_index(purpose_choice)
-
-                if 1 <= readability_choice <= len(select2.options) - 1:
-                    select2.select_by_index(readability_choice)
+                purpose_select.select_by_index(purpose_choice - 1)
+                readability_select.select_by_index(readability_choice - 1)
 
                 textarea = driver.find_element(By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[2]/div/textarea')
                 textarea.clear()
