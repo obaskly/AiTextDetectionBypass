@@ -24,6 +24,8 @@ from fake_useragent import UserAgent
 # Gmail API scope
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
+generated_variations = set()
+
 def authenticate_gmail():
     creds = None
     # The token.json file stores the user's access and refresh tokens.
@@ -43,30 +45,36 @@ def authenticate_gmail():
 
     return creds
 
-def generate_gmail_variation(base_email):
-    local_part, domain = base_email.split('@')
+def calculate_email_variations(email):
+    username, domain = email.split("@")
+    
+    positions = len(username) - 1
+    
+    total_variations = 2 ** positions
+    return total_variations
 
-    # Ensure that the local part has more than one character to allow for dot insertion
+def generate_gmail_variation(base_email, max_attempts=20):
+    local_part, domain = base_email.split('@')
+    
     if len(local_part) <= 2:
         return base_email  # Not enough characters to add dots
+    
+    for _ in range(max_attempts):
+        local_part_variants = list(local_part)
+        max_dots = len(local_part) - 2
+        num_dots = random.randint(1, max_dots) if max_dots > 0 else 0
+        dot_positions = sorted(random.sample(range(1, len(local_part) - 1), num_dots))
 
-    # Convert the local part into a list of characters
-    local_part_variants = list(local_part)
-
-    # Determine how many dots can be inserted (max: length of local_part - 1)
-    max_dots = len(local_part) - 2  # Avoid starting and ending positions
-    num_dots = random.randint(1, max_dots) if max_dots > 0 else 0
-
-    # Select random positions to insert dots, ensuring no consecutive dots
-    dot_positions = sorted(random.sample(range(1, len(local_part) - 1), num_dots))
-
-    # Insert dots at the selected positions
-    for i, pos in enumerate(dot_positions):
-        if local_part_variants[pos - 1] != '.':
+        for i, pos in enumerate(dot_positions):
             local_part_variants.insert(pos + i, '.')
 
-    # Join the modified local part and return the new email address
-    return ''.join(local_part_variants).strip('.') + '@' + domain
+        new_email = ''.join(local_part_variants).strip('.') + '@' + domain
+
+        if new_email not in generated_variations:
+            generated_variations.add(new_email)
+            return new_email
+    
+    raise ValueError("Unable to generate a unique Gmail variation after multiple attempts.")
 
 def extract_verify_link(text):
     pattern = r'https://undetectable\.ai/api/auth/callback/sendgrid\?[^"]+'
@@ -77,15 +85,20 @@ def get_gmail_service(creds):
     return build('gmail', 'v1', credentials=creds)
 
 def search_for_confirmation_email(service, query='subject:Sign in to Undetectable AI'):
-    results = service.users().messages().list(userId='me', q=query).execute()
-    messages = results.get('messages', [])
-    
-    if not messages:
-        print("No confirmation email found.")
+    try:
+        results = service.users().messages().list(userId='me', q=query, maxResults=1).execute()
+        messages = results.get('messages', [])
+        
+        if not messages:
+            print("No confirmation email found.")
+            return None
+        
+        # Get the first (most recent) message
+        message = service.users().messages().get(userId='me', id=messages[0]['id'], format='full').execute()
+        return message
+    except Exception as e:
+        print(f"Error retrieving confirmation email: {e}")
         return None
-    
-    message = service.users().messages().get(userId='me', id=messages[0]['id'], format='full').execute()
-    return message
 
 def get_message_body(message):
     if 'parts' in message['payload']:
@@ -111,7 +124,7 @@ def get_message_body(message):
         return decoded_data
     return ''
 
-def automate_sign_in(driver, temp_email):
+def automate_sign_in(driver, temp_email, base_email):
     try:
         # Go to the Undetectable AI login page
         driver.get('https://undetectable.ai/login')
@@ -129,11 +142,13 @@ def automate_sign_in(driver, temp_email):
         driver.execute_script("arguments[0].click();", sign_in_button)
 
         print(f"\nSign-in attempt made with email: {temp_email}")
+        print(f"{Fore.GREEN}Total variations for {base_email}: {calculate_email_variations(base_email)}")
 
     except Exception as e:
         print(f"Error during sign-in process: {e}")
 
 def wait_for_confirmation_email(service, max_wait_time=300, poll_interval=10):
+    time.sleep(7)
     start_time = time.time()
     while time.time() - start_time < max_wait_time:
         confirmation_email = search_for_confirmation_email(service)
@@ -215,7 +230,19 @@ def process_confirmation_link(driver, verify_link, service, email):
 
             # Input the OTP into the fields
             for i, digit in enumerate(otp_code):
-                otp_fields[i].send_keys(digit)
+                try:
+                    driver.execute_script("arguments[0].focus();", otp_fields[i])
+                    
+                    # Clear any pre-existing input (just in case)
+                    otp_fields[i].clear()
+
+                    # Send the digit
+                    otp_fields[i].send_keys(digit)
+                    
+                    # Add a small delay between inputs to prevent race conditions
+                    time.sleep(0.2)
+                except Exception as e:
+                    print(f"{Fore.RED}Error inputting OTP at position {i}: {e}")
 
             # Submit the OTP
             continue_button2 = WebDriverWait(driver, 10).until(
@@ -277,7 +304,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email):
             try:
                 # Generate a Gmail variation and sign in
                 email_variant = generate_gmail_variation(base_email)
-                automate_sign_in(driver, email_variant)
+                automate_sign_in(driver, email_variant, base_email)
 
                 # Wait for confirmation email and process link
                 creds = authenticate_gmail()
