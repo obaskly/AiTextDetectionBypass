@@ -2,5 +2,4 @@ colorama
 pyperclip
 selenium
 PyQt6
-pyautogui
 fake-useragent
