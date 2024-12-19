@@ -1,4 +1,3 @@
-
 import random
 import pyperclip
 from selenium.common.exceptions import TimeoutException
