@@ -1,8 +1,8 @@
-import nltk
+from nltk import download
 from nltk.tokenize import sent_tokenize
 
 # Download required resources for nltk
-nltk.download("punkt")
+download("punkt")
 
 def split_text_preserve_sentences(text, max_words):
     sentences = sent_tokenize(text)
