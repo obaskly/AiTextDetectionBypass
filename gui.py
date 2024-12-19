@@ -45,8 +45,23 @@ class ParaphrasingApp(QWidget):
         """)
 
         self.titleLabel = QLabel('ParaGenie')
-        self.titleLabel.setFont(QFont('Arial', 24))
+        self.titleLabel.setFont(QFont('Orbitron', 29))
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.titleLabel.setStyleSheet("""
+            QLabel {
+                color: qlineargradient(
+                    spread: pad, 
+                    x1: 0, y1: 0, 
+                    x2: 1, y2: 0, 
+                    stop: 0 #00c6ff, 
+                    stop: 1 #0072ff
+                );
+                font-weight: bold;
+                font-size: 32px;  /* Increased font size */
+                padding: 20px 0;   /* Added padding to make it more spacious */
+            }
+        """)
 
         self.purposeLabel = QLabel('Purpose of Writing:')
         self.readabilityLabel = QLabel('Readability Level:')
