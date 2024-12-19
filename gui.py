@@ -1,8 +1,11 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox
+)
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from paraphraser import main
+
 
 class ParaphrasingApp(QWidget):
     def __init__(self):
@@ -63,6 +66,10 @@ class ParaphrasingApp(QWidget):
         self.emailLineEdit = QLineEdit()
         self.emailLineEdit.setPlaceholderText('Enter your email address')
 
+        # Add NLTK toggle checkbox
+        self.useNltkCheckBox = QCheckBox('Use NLTK for splitting chunks')
+        self.useNltkCheckBox.setChecked(False)
+
         self.startButton = QPushButton('Start Paraphrasing')
         self.startButton.clicked.connect(self.startParaphrasing)
 
@@ -76,11 +83,12 @@ class ParaphrasingApp(QWidget):
         layout.addWidget(self.browseButton)
         layout.addWidget(self.emailLabel)
         layout.addWidget(self.emailLineEdit)
+        layout.addWidget(self.useNltkCheckBox)
         layout.addWidget(self.startButton)
 
         self.setLayout(layout)
         self.setWindowTitle('AiDetectionBypasser V1.0')
-        self.setGeometry(300, 300, 400, 400)
+        self.setGeometry(300, 300, 400, 450)
 
     def browseFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/home')
@@ -91,22 +99,25 @@ class ParaphrasingApp(QWidget):
         readability_choice = self.readabilityComboBox.currentIndex() + 1
         article_file_path = self.filePathLineEdit.text()
         email_address = self.emailLineEdit.text()
+        use_nltk = self.useNltkCheckBox.isChecked()
 
         if not email_address:
             QMessageBox.warning(self, 'Input Error', 'Please enter an email address.')
             return
 
         try:
-            main(purpose_choice, readability_choice, article_file_path, email_address)
+            main(purpose_choice, readability_choice, article_file_path, email_address, use_nltk)
             QMessageBox.information(self, 'Success', 'Article has been paraphrased successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
+
 
 def run_app():
     app = QApplication(sys.argv)
     ex = ParaphrasingApp()
     ex.show()
     sys.exit(app.exec())
+
 
 if __name__ == '__main__':
     run_app()
