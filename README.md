@@ -1,19 +1,21 @@
 # 📝 Ai Text Detection Bypass Script
 
-This script automates the process of paraphrasing articles using undetectable.ai website. It splits the input article into 250-word chunks and paraphrases each chunk. The paraphrased content is then saved to a file.
+This script automates the process of paraphrasing articles using the undetectable.ai platform. It enables users to transform long-form content into unique paraphrased versions by splitting the input text into manageable chunks and processing each chunk individually. The script is designed with flexibility, automation, and user anonymity in mind, making it an efficient tool for paraphrasing lengthy documents.
 
-## NEW
+✨ What's New?
 
 You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
 
-## Features
+## 🔥 Features
 
-- Paraphrase long articles automatically.
-- Split articles into manageable chunks.
-- Save paraphrased content to a file.
-- Uses Gmail for registration. (NEW !)
-- Supports different writing purposes and readability levels.
-- Utilizes Chrome's incognito mode for anonymity.
+- Automated Paraphrasing: Automatically paraphrase long articles by breaking them into chunks.
+- Customizable Chunk Splitting: Choose between the default word-based splitting method or a more advanced NLTK-powered sentence-preserving approach. (NEW!)
+- Gmail-Based Registration: Automates Gmail registration and verification for seamless paraphrasing. (NEW!)
+- Purpose-Specific Writing: Supports a variety of writing purposes such as essays, articles, marketing material, and more.
+- Readability Options: Tailor the readability level of the output, from high school to professional marketing standards.
+- Anonymity Features: Leverages Chrome's incognito mode and a random user agent to protect your identity.
+- Error Handling and Recovery: Automatically retries chunks if any errors occur during the paraphrasing process.
+- Output Management: Saves paraphrased content into a file for easy access and organization.
 
 ## Usage
 
