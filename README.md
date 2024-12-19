@@ -30,7 +30,6 @@ cd AiTextDetectionBypass
 
   ```bash
   pip install -r requirements.txt
-  pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
   ```
 
 3. GMAIL SETUP
