@@ -44,7 +44,7 @@ class ParaphrasingApp(QWidget):
             }
         """)
 
-        self.titleLabel = QLabel('Article Paraphraser')
+        self.titleLabel = QLabel('ParaGenie')
         self.titleLabel.setFont(QFont('Arial', 24))
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -87,7 +87,7 @@ class ParaphrasingApp(QWidget):
         layout.addWidget(self.startButton)
 
         self.setLayout(layout)
-        self.setWindowTitle('AiDetectionBypasser V1.0')
+        self.setWindowTitle('ParaGenie V2.0')
         self.setGeometry(300, 300, 400, 450)
 
     def browseFile(self):
