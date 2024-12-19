@@ -10,17 +10,21 @@ from colorama import Fore
 
 from email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
 from automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
+from text_splitter import split_text_preserve_sentences
 
-def main(purpose_choice, readability_choice, article_file_path, base_email):
+def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk):
     driver = None
     try:
         with open(article_file_path, 'r', encoding="utf8") as article_file:
             article_text = article_file.read()
 
-        # Split the article into chunks of 250 words
-        words = article_text.split()
-        chunk_size = 250
-        article_chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
+        # Split the article into chunks based on user choice
+        if use_nltk:
+            article_chunks = split_text_preserve_sentences(article_text, 250)
+        else:
+            words = article_text.split()
+            chunk_size = 250
+            article_chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
 
         if not article_chunks:
             print(f"{Fore.RED}Your file is empty.")
