@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from fake_useragent import UserAgent
 from colorama import Fore
+from plyer import notification
 
 from email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
 from automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
@@ -27,7 +28,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                 download("punkt")
             except:
                 download("punkt")
-                
+
             article_chunks = split_text_preserve_sentences(article_text, 250)
         else:
             words = article_text.split()
@@ -143,6 +144,11 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
 
         print(f"{Fore.GREEN}\nArticle has been paraphrased successfully.")
+        notification.notify(
+            title="Paraphrasing Complete",
+            message="Your file has been successfully paraphrased.",
+            timeout=5
+        )
 
     except Exception as e:
         print(f"{Fore.RED}Error during processing: {e}")
