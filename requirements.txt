@@ -4,6 +4,7 @@ selenium
 PyQt6
 fake-useragent
 nltk
+plyer
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
