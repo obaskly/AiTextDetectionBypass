@@ -20,6 +20,11 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
         # Split the article into chunks based on user choice
         if use_nltk:
+            from nltk import download
+            
+            # Download required resources for nltk
+            download("punkt")
+
             article_chunks = split_text_preserve_sentences(article_text, 250)
         else:
             words = article_text.split()
