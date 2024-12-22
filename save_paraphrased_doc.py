@@ -5,7 +5,6 @@ from pypdf import PdfReader, PdfWriter
 import pyperclip
 
 def save_as_docx(input_path, paraphrased_text):
-    """Save paraphrased text as docx file"""
     try:
         doc = Document()
         doc.add_paragraph(paraphrased_text)
@@ -17,7 +16,6 @@ def save_as_docx(input_path, paraphrased_text):
         sys.exit(1)
 
 def save_as_txt(input_path, paraphrased_text):
-    """Save paraphrased text as txt file"""
     try:
         output_path = get_output_filename(input_path)
         with open(output_path, 'w', encoding='utf-8') as f:
@@ -28,7 +26,6 @@ def save_as_txt(input_path, paraphrased_text):
         sys.exit(1)
 
 def save_as_pdf(input_path, paraphrased_text):
-    """Save paraphrased text as pdf file with proper formatting"""
     try:
         from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import letter
@@ -71,29 +68,4 @@ def save_as_pdf(input_path, paraphrased_text):
         
     except Exception as e:
         print(f"Error saving pdf: {str(e)}")
-        sys.exit(1)
-
-def get_output_filename(input_path):
-    """Generate output filename by adding '_paraphrased' before extension"""
-    base, ext = os.path.splitext(input_path)
-    return f"{base}_paraphrased{ext}"
-
-def save_paraphrased_text(input_path):
-    """Main function to save paraphrased text in same format as input"""
-    # Get paraphrased text from clipboard
-    paraphrased_text = pyperclip.paste()
-    
-    # Get file extension
-    _, ext = os.path.splitext(input_path)
-    ext = ext.lower()
-    
-    # Save in appropriate format
-    if ext == '.docx':
-        save_as_docx(input_path, paraphrased_text)
-    elif ext == '.txt':
-        save_as_txt(input_path, paraphrased_text)
-    elif ext == '.pdf':
-        save_as_pdf(input_path, paraphrased_text)
-    else:
-        print(f"Unsupported file format: {ext}")
         sys.exit(1)
