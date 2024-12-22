@@ -6,7 +6,6 @@ from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
 from PyQt6.QtCore import Qt, QDir
 from paraphraser import main
 
-
 class ParaphrasingApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -58,8 +57,8 @@ class ParaphrasingApp(QWidget):
                     stop: 1 #0072ff
                 );
                 font-weight: bold;
-                font-size: 32px;  /* Increased font size */
-                padding: 20px 0;   /* Added padding to make it more spacious */
+                font-size: 32px;
+                padding: 20px 0;
             }
         """)
 
@@ -89,6 +88,9 @@ class ParaphrasingApp(QWidget):
         self.useNltkCheckBox = QCheckBox('Use NLTK for splitting chunks')
         self.useNltkCheckBox.setChecked(False)
 
+        self.saveSameFormatCheckBox = QCheckBox('Save file in the same format')
+        self.saveSameFormatCheckBox.setChecked(False)
+
         self.startButton = QPushButton('Start Paraphrasing')
         self.startButton.clicked.connect(self.startParaphrasing)
 
@@ -103,14 +105,14 @@ class ParaphrasingApp(QWidget):
         layout.addWidget(self.emailLabel)
         layout.addWidget(self.emailLineEdit)
         layout.addWidget(self.useNltkCheckBox)
+        layout.addWidget(self.saveSameFormatCheckBox)
         layout.addWidget(self.startButton)
 
         self.setLayout(layout)
         self.setWindowTitle('ParaGenie V2.0')
-        self.setGeometry(300, 300, 400, 450)
+        self.setGeometry(300, 300, 400, 480)
 
     def browseFile(self):
-        # Open the file dialog in the current script's directory
         current_directory = QDir.currentPath()
         fname, _ = QFileDialog.getOpenFileName(
             self, 
@@ -121,14 +123,12 @@ class ParaphrasingApp(QWidget):
         self.filePathLineEdit.setText(fname)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
-        # Accept the drag event only if the file has the right extension
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if any(url.toLocalFile().lower().endswith(('.txt', '.docx', '.pdf')) for url in urls):
                 event.acceptProposedAction()
 
     def dropEvent(self, event: QDropEvent):
-        # Set the file path when a valid file is dropped
         urls = event.mimeData().urls()
         if urls:
             file_path = urls[0].toLocalFile()
@@ -140,13 +140,14 @@ class ParaphrasingApp(QWidget):
         article_file_path = self.filePathLineEdit.text()
         email_address = self.emailLineEdit.text()
         use_nltk = self.useNltkCheckBox.isChecked()
+        save_same_format = self.saveSameFormatCheckBox.isChecked()
 
         if not email_address:
             QMessageBox.warning(self, 'Input Error', 'Please enter an email address.')
             return
 
         try:
-            main(purpose_choice, readability_choice, article_file_path, email_address, use_nltk)
+            main(purpose_choice, readability_choice, article_file_path, email_address, use_nltk, save_same_format)
             QMessageBox.information(self, 'Success', 'Article has been paraphrased successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
