@@ -1,4 +1,3 @@
-import sys
 from docx import Document
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
@@ -12,8 +11,7 @@ def save_as_docx(input_path, paraphrased_text):
         doc.save(output_path)
         print(f"Successfully saved paraphrased text to {output_path}")
     except Exception as e:
-        print(f"Error saving docx: {str(e)}")
-        sys.exit(1)
+        raise ValueError(f"Error saving docx: {str(e)}")
 
 def save_as_txt(input_path, paraphrased_text):
     try:
@@ -22,8 +20,7 @@ def save_as_txt(input_path, paraphrased_text):
             f.write(paraphrased_text)
         print(f"Successfully saved paraphrased text to {output_path}")
     except Exception as e:
-        print(f"Error saving txt: {str(e)}")
-        sys.exit(1)
+        raise ValueError(f"Error saving txt: {str(e)}")
 
 def save_as_pdf(input_path, paraphrased_text):
     try:
@@ -61,5 +58,4 @@ def save_as_pdf(input_path, paraphrased_text):
         print(f"Successfully saved paraphrased text to {output_path}")
         
     except Exception as e:
-        print(f"Error saving pdf: {str(e)}")
-        sys.exit(1)
+        raise ValueError(f"Error saving pdf: {str(e)}")
