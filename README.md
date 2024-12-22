@@ -9,6 +9,7 @@ You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
 ## 🔥 Features
 
 - Automated Paraphrasing: Automatically paraphrase long articles by breaking them into chunks.
+- Multi-File Support: Hndles text extraction and processing for TXT, DOCX, and PDF file formats. (NEW!)
 - Customizable Chunk Splitting: Choose between the default word-based splitting method or a more advanced NLTK-powered sentence-preserving approach. (NEW!)
 - Gmail-Based Registration: Automates Gmail registration and verification for seamless paraphrasing. (NEW!)
 - Purpose-Specific Writing: Supports a variety of writing purposes such as essays, articles, marketing material, and more.
