@@ -15,7 +15,13 @@ from text_splitter import split_text_preserve_sentences
 from reader import extract_text_from_docx, extract_text_from_pdf
 from save_paraphrased_doc import save_as_docx, save_as_txt, save_as_pdf
 
-def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk, save_same_format):
+tone_xpath = {
+    "BALANCED": "//div[contains(text(),'BALANCED')]",
+    "MORE_HUMAN": "//div[contains(text(),'MORE HUMAN')]",
+    "MORE_READABLE": "//div[contains(text(),'MORE READABLE')]"
+}
+
+def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk, save_same_format, tone_choice):
     driver = None
     try:
         if article_file_path.lower().endswith('.docx'):
@@ -114,6 +120,15 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         textarea.clear()
                         textarea.send_keys(chunk)
 
+                        try:
+                            tone_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, tone_xpath[tone_choice]))
+                            )
+                            driver.execute_script("arguments[0].click();", tone_element)
+                            print(f"{Fore.GREEN}Selected tone: {tone_choice.replace('_', ' ').title()}")
+                        except Exception as e:
+                            print(f"{Fore.RED}Error selecting tone: {e}. Defaulting to More Human.")
+
                         humanize = driver.find_element(By.ID, 'humanize-tooltip')
                         driver.execute_script("arguments[0].click();", humanize)
 
@@ -142,6 +157,8 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                                 save_as_pdf(article_file_path, copied_content)
                             else:
                                 save_as_txt(article_file_path, copied_content)
+                        else:
+                            save_as_txt('paraphrased.txt', copied_content)
 
                         # Remove the successfully paraphrased chunk
                         article_chunks.pop(0)
@@ -163,7 +180,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
         notification.notify(
             title="Paraphrasing Complete",
             message="Your file has been successfully paraphrased.",
-            timeout=5
+            timeout=3
         )
 
     except Exception as e:
