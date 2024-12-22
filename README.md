@@ -6,6 +6,10 @@ ParaGenie is a script that automates the process of paraphrasing articles using 
 
 You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
 
+## 🛑 Disclaimer
+
+This script automates text paraphrasing but is *NOT responsible for the quality or accuracy of the output*. Please review and verify results independently.
+
 ## 🔥 Features
 
 - Automated Paraphrasing: Automatically paraphrase long articles by breaking them into chunks.
@@ -14,6 +18,7 @@ You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
 - Gmail-Based Registration: Automates Gmail registration and verification for seamless paraphrasing. (NEW!)
 - Purpose-Specific Writing: Supports a variety of writing purposes such as essays, articles, marketing material, and more.
 - Readability Options: Tailor the readability level of the output, from high school to professional marketing standards.
+- Tone selection: Support three different kinds of tones.
 - Anonymity Features: Leverages Chrome's incognito mode and a random user agent to protect your identity.
 - Error Handling and Recovery: Automatically retries chunks if any errors occur during the paraphrasing process.
 - Output Management: Saves paraphrased content into a file for easy access and organization.
