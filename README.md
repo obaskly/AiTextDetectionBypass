@@ -25,20 +25,20 @@ This script automates text paraphrasing but is **NOT responsible for the quality
 
 ## Usage
 
-1. Clone this repository to your local machine.
+1. **Clone this repository to your local machine**.
 
 ```bash
 git clone https://github.com/obaskly/AiTextDetectionBypass.git
 cd AiTextDetectionBypass
 ```
 
-2. Install the required Python packages.
+2. **Install the required Python packages**.
 
   ```bash
   pip install -r requirements.txt
   ```
 
-3. GMAIL SETUP
+3. **GMAIL SETUP**.
 
 - go to https://console.cloud.google.com
 - create new project
@@ -46,7 +46,7 @@ cd AiTextDetectionBypass
 - type "Gmail API" and select it from the results.
 - Click the Enable button.
   
-  ### Set Up OAuth Consent Screen
+  #### Set Up OAuth Consent Screen
   
 - In the left-hand menu, go to APIs & Services > OAuth consent screen.
 - Choose External 
@@ -55,14 +55,14 @@ cd AiTextDetectionBypass
 - Add the Gmail address you want to use for paraphrasing.
 - Click Save and Continue.
   
-  ### Create OAuth 2.0 Credentials
+  #### Create OAuth 2.0 Credentials
   
 - Go to APIs & Services > Credentials.
 - Click Create Credentials > OAuth 2.0 Client IDs.
 - Choose Desktop App as the application type.
 - Download the credentials.json file once it’s created and put it in the same directory as the script.
 
-4. Run the script.
+4. **Run the script**.
 
   ```bash
   python gui.py
