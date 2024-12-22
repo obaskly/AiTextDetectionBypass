@@ -15,7 +15,7 @@ from text_splitter import split_text_preserve_sentences
 from reader import extract_text_from_docx, extract_text_from_pdf
 from save_paraphrased_doc import save_as_docx, save_as_txt, save_as_pdf
 
-def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk):
+def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk, save_same_format):
     driver = None
     try:
         if article_file_path.lower().endswith('.docx'):
@@ -135,12 +135,13 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
                         copied_content = pyperclip.paste()
                         # Save in same format as input
-                        if article_file_path.lower().endswith('.docx'):
-                            save_as_docx(article_file_path, copied_content)
-                        elif article_file_path.lower().endswith('.pdf'):
-                            save_as_pdf(article_file_path, copied_content) 
-                        else:
-                            save_as_txt(article_file_path, copied_content)
+                        if save_same_format:  
+                            if article_file_path.lower().endswith('.docx'):
+                                save_as_docx(article_file_path, copied_content)
+                            elif article_file_path.lower().endswith('.pdf'):
+                                save_as_pdf(article_file_path, copied_content)
+                            else:
+                                save_as_txt(article_file_path, copied_content)
 
                         # Remove the successfully paraphrased chunk
                         article_chunks.pop(0)
