@@ -5,8 +5,9 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate
 import os 
 
 def get_output_filename(input_path):
-    base, ext = os.path.splitext(input_path)
-    return f"{base}_paraphrased{ext}"
+    base_dir = os.path.dirname(input_path)
+    ext = os.path.splitext(input_path)[1]
+    return os.path.join(base_dir, f"paraphrased{ext}")
 
 def save_as_docx(input_path, paraphrased_text):
     try:
