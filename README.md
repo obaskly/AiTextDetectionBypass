@@ -38,7 +38,7 @@ cd AiTextDetectionBypass
   pip install -r requirements.txt
   ```
 
-3. **GMAIL SETUP**.
+3. **GMAIL Setup**.
 
 - go to https://console.cloud.google.com
 - create new project
@@ -68,13 +68,7 @@ cd AiTextDetectionBypass
   python gui.py
   ```
 
-Prepare your article in a text file (e.g., article.txt).
-Select the writing purpose, readability level, and provide the path to your article.
-
-If you don't want to use the GUI mode, open `paraphraser.py`, uncomment the last part, and run it.
-
-The script will save the paraphrased content to paraphrased.txt.
-Sit back and relax while the script paraphrases your article!
+#### *Sit back and relax while the script paraphrases your article!*
 
 ## Prerequisites
 
