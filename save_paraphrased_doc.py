@@ -1,8 +1,6 @@
 import os
 import sys
 from docx import Document
-from pypdf import PdfReader, PdfWriter
-import pyperclip
 
 def save_as_docx(input_path, paraphrased_text):
     try:
