@@ -27,11 +27,9 @@ def save_as_txt(input_path, paraphrased_text):
 
 def save_as_pdf(input_path, paraphrased_text):
     try:
-        from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import letter
         from reportlab.lib.styles import ParagraphStyle
         from reportlab.platypus import Paragraph, SimpleDocTemplate
-        from reportlab.lib.units import inch
         
         output_path = get_output_filename(input_path)
         
