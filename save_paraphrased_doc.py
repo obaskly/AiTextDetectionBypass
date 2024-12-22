@@ -2,6 +2,11 @@ from docx import Document
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate
+import os 
+
+def get_output_filename(input_path):
+    base, ext = os.path.splitext(input_path)
+    return f"{base}_paraphrased{ext}"
 
 def save_as_docx(input_path, paraphrased_text):
     try:
