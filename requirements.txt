@@ -6,6 +6,7 @@ fake-useragent
 nltk
 plyer
 pypdf
+docx
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
