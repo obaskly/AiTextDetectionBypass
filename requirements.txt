@@ -5,6 +5,7 @@ PyQt6
 fake-useragent
 nltk
 plyer
+pypdf
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
