@@ -2,8 +2,8 @@ import sys
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox
 )
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
+from PyQt6.QtCore import Qt, QDir
 from paraphraser import main
 
 
@@ -75,13 +75,17 @@ class ParaphrasingApp(QWidget):
         self.readabilityComboBox.addItems(['High School', 'University', 'Doctorate', 'Journalist', 'Marketing'])
 
         self.filePathLineEdit = QLineEdit()
+        self.filePathLineEdit.setPlaceholderText("Drag and drop a file here or click 'Browse'")
+        self.filePathLineEdit.setAcceptDrops(True)
+        self.filePathLineEdit.dragEnterEvent = self.dragEnterEvent
+        self.filePathLineEdit.dropEvent = self.dropEvent
+
         self.browseButton = QPushButton('Browse')
         self.browseButton.clicked.connect(self.browseFile)
 
         self.emailLineEdit = QLineEdit()
         self.emailLineEdit.setPlaceholderText('Enter your email address')
 
-        # Add NLTK toggle checkbox
         self.useNltkCheckBox = QCheckBox('Use NLTK for splitting chunks')
         self.useNltkCheckBox.setChecked(False)
 
@@ -106,8 +110,29 @@ class ParaphrasingApp(QWidget):
         self.setGeometry(300, 300, 400, 450)
 
     def browseFile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '/home')
-        self.filePathLineEdit.setText(fname[0])
+        # Open the file dialog in the current script's directory
+        current_directory = QDir.currentPath()
+        fname, _ = QFileDialog.getOpenFileName(
+            self, 
+            'Open file', 
+            current_directory, 
+            'Text Files (*.txt);;Word Documents (*.docx);;PDF Files (*.pdf)'
+        )
+        self.filePathLineEdit.setText(fname)
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        # Accept the drag event only if the file has the right extension
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if any(url.toLocalFile().lower().endswith(('.txt', '.docx', '.pdf')) for url in urls):
+                event.acceptProposedAction()
+
+    def dropEvent(self, event: QDropEvent):
+        # Set the file path when a valid file is dropped
+        urls = event.mimeData().urls()
+        if urls:
+            file_path = urls[0].toLocalFile()
+            self.filePathLineEdit.setText(file_path)
 
     def startParaphrasing(self):
         purpose_choice = self.purposeComboBox.currentIndex() + 1
