@@ -8,7 +8,7 @@ You can Try the Other tool as well https://github.com/obaskly/AiDetectionBypass
 
 ## 🛑 Disclaimer
 
-This script automates text paraphrasing but is *NOT responsible for the quality or accuracy of the output*. Please review and verify results independently.
+This script automates text paraphrasing but is **NOT responsible for the quality or accuracy of the output**. Please review and verify results independently.
 
 ## 🔥 Features
 
