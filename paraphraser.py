@@ -185,19 +185,3 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
     except Exception as e:
         print(f"{Fore.RED}Error during processing: {e}")
-
-'''
-if __name__ == "__main__":
-    try:
-        print(f'{Fore.GREEN}1. General Writing\n2. Essay\n3. Article\n4. Marketing Material\n5. Story\n6. Cover letter\n7. Report\n8. Business Material\n9. Legal Material\n')
-        purpose_choice = int(input(f'{Fore.CYAN}Select the purpose of your writing: {Fore.GREEN}'))
-        print(f'{Fore.GREEN}\n1. High School\n2. University\n3. Doctorate\n4. Journalist\n5. Marketing')
-        readability_choice = int(input(f'\n{Fore.CYAN}Select the readability of your writing: {Fore.GREEN}'))
-        article_file_path = input(f"\n{Fore.CYAN}Enter the path to the text file containing your article: {Fore.GREEN}")
-        base_email = input(f"\n{Fore.CYAN}Enter your base Gmail address: {Fore.GREEN}")
-
-        main(purpose_choice, readability_choice, article_file_path, base_email)
-    except Exception as e:
-        print(f"{Fore.RED}Aborting due to error: {e}")
-        raise
-'''
