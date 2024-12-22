@@ -12,8 +12,7 @@ from plyer import notification
 from email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
 from automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
 from text_splitter import split_text_preserve_sentences
-from docx_reader import extract_text_from_docx
-from pdf_reader import extract_text_from_pdf
+from reader import extract_text_from_docx, extract_text_from_pdf
 from save_paraphrased_doc import save_as_docx, save_as_txt, save_as_pdf
 
 def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk):
