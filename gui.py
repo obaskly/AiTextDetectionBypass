@@ -73,6 +73,10 @@ class ParaphrasingApp(QWidget):
         self.readabilityComboBox = QComboBox()
         self.readabilityComboBox.addItems(['High School', 'University', 'Doctorate', 'Journalist', 'Marketing'])
 
+        self.toneLabel = QLabel('Tone:')
+        self.toneComboBox = QComboBox()
+        self.toneComboBox.addItems(['Balanced', 'More Human', 'More Readable'])
+
         self.filePathLineEdit = QLineEdit()
         self.filePathLineEdit.setPlaceholderText("Drag and drop a file here or click 'Browse'")
         self.filePathLineEdit.setAcceptDrops(True)
@@ -99,6 +103,8 @@ class ParaphrasingApp(QWidget):
         layout.addWidget(self.purposeComboBox)
         layout.addWidget(self.readabilityLabel)
         layout.addWidget(self.readabilityComboBox)
+        layout.addWidget(self.toneLabel)
+        layout.addWidget(self.toneComboBox)
         layout.addWidget(self.filePathLabel)
         layout.addWidget(self.filePathLineEdit)
         layout.addWidget(self.browseButton)
@@ -137,6 +143,7 @@ class ParaphrasingApp(QWidget):
     def startParaphrasing(self):
         purpose_choice = self.purposeComboBox.currentIndex() + 1
         readability_choice = self.readabilityComboBox.currentIndex() + 1
+        tone_choice = self.toneComboBox.currentText().upper().replace(' ', '_')
         article_file_path = self.filePathLineEdit.text()
         email_address = self.emailLineEdit.text()
         use_nltk = self.useNltkCheckBox.isChecked()
@@ -147,18 +154,16 @@ class ParaphrasingApp(QWidget):
             return
 
         try:
-            main(purpose_choice, readability_choice, article_file_path, email_address, use_nltk, save_same_format)
+            main(purpose_choice, readability_choice, article_file_path, email_address, use_nltk, save_same_format, tone_choice)
             QMessageBox.information(self, 'Success', 'Article has been paraphrased successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
-
 
 def run_app():
     app = QApplication(sys.argv)
     ex = ParaphrasingApp()
     ex.show()
     sys.exit(app.exec())
-
 
 if __name__ == '__main__':
     run_app()
