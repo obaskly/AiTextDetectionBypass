@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from colorama import Fore
-from email_utils import calculate_email_variations, get_message_body, search_for_confirmation_email
+from utils.email_utils import calculate_email_variations, get_message_body, search_for_confirmation_email
 
 def automate_sign_in(driver, temp_email, base_email):
     try:
