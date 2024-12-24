@@ -2,6 +2,7 @@ import os
 import re
 import base64
 import random
+import json
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -10,7 +11,8 @@ from google.auth.transport.requests import Request
 # Gmail API scope
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
-generated_variations = set()
+# File to persist generated variations
+VARIATIONS_FILE = 'generated_variations.json'
 
 def authenticate_gmail():
     creds = None
@@ -39,6 +41,32 @@ def calculate_email_variations(email):
     total_variations = 2 ** positions
     return total_variations
 
+def email_exists_in_file(email):
+    if not os.path.exists(VARIATIONS_FILE):
+        return False
+    try:
+        with open(VARIATIONS_FILE, 'r') as f:
+            variations = json.load(f)
+            return email in variations
+    except (json.JSONDecodeError, ValueError):
+        # If the file is empty or corrupted, return False
+        return False
+
+def save_email_to_file(email):
+    if os.path.exists(VARIATIONS_FILE):
+        try:
+            with open(VARIATIONS_FILE, 'r') as f:
+                variations = json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            # If the file is empty or corrupted, start with an empty list
+            variations = []
+    else:
+        variations = []
+    
+    variations.append(email)
+    with open(VARIATIONS_FILE, 'w') as f:
+        json.dump(variations, f, indent=4)
+
 def generate_gmail_variation(base_email, max_attempts=20):
     local_part, domain = base_email.split('@')
     
@@ -56,8 +84,9 @@ def generate_gmail_variation(base_email, max_attempts=20):
 
         new_email = ''.join(local_part_variants).strip('.') + '@' + domain
 
-        if new_email not in generated_variations:
-            generated_variations.add(new_email)
+        # Check if the email already exists in the file
+        if not email_exists_in_file(new_email):
+            save_email_to_file(new_email)
             return new_email
     
     raise ValueError("Unable to generate a unique Gmail variation after multiple attempts.")
