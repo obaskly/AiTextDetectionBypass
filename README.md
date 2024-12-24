@@ -16,6 +16,7 @@ This script automates text paraphrasing but is **NOT responsible for the quality
 - Multi-File Support: Hndles text extraction and processing for TXT, DOCX, and PDF file formats. (NEW!)
 - Customizable Chunk Splitting: Choose between the default word-based splitting method or a more advanced NLTK-powered sentence-preserving approach. (NEW!)
 - Gmail-Based Registration: Automates Gmail registration and verification for seamless paraphrasing. (NEW!)
+- Smart Email Management: Saves generated Gmail variations in a JSON file to avoid redundancy. (NEW!)
 - Purpose-Specific Writing: Supports a variety of writing purposes such as essays, articles, marketing material, and more.
 - Readability Options: Tailor the readability level of the output, from high school to professional marketing standards.
 - Tone selection: Support three different kinds of tones.
