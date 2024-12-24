@@ -9,11 +9,11 @@ from fake_useragent import UserAgent
 from colorama import Fore
 from plyer import notification
 
-from email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
-from automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
-from text_splitter import split_text_preserve_sentences
-from reader import extract_text_from_docx, extract_text_from_pdf
-from save_paraphrased_doc import save_as_docx, save_as_txt, save_as_pdf
+from utils.email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
+from utils.automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
+from utils.text_splitter import split_text_preserve_sentences
+from file_processing.reader import extract_text_from_docx, extract_text_from_pdf
+from file_processing.save_paraphrased_doc import save_as_docx, save_as_txt, save_as_pdf
 
 tone_xpath = {
     "BALANCED": "//div[contains(text(),'BALANCED')]",
@@ -180,8 +180,9 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
         notification.notify(
             title="Paraphrasing Complete",
             message="Your file has been successfully paraphrased.",
-            timeout=3
+            timeout=5
         )
 
     except Exception as e:
         print(f"{Fore.RED}Error during processing: {e}")
+
