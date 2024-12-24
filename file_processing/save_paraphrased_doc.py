@@ -11,9 +11,14 @@ def get_output_filename(input_path):
 
 def save_as_docx(input_path, paraphrased_text):
     try:
-        doc = Document()
-        doc.add_paragraph(paraphrased_text)
         output_path = get_output_filename(input_path)
+        
+        if os.path.exists(output_path):
+            doc = Document(output_path)
+        else:
+            doc = Document()
+        
+        doc.add_paragraph(paraphrased_text)
         doc.save(output_path)
         print(f"Successfully saved paraphrased text to {output_path}")
     except Exception as e:
@@ -22,8 +27,10 @@ def save_as_docx(input_path, paraphrased_text):
 def save_as_txt(input_path, paraphrased_text):
     try:
         output_path = get_output_filename(input_path)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(paraphrased_text)
+
+        with open(output_path, 'a', encoding='utf-8') as f:
+            f.write(paraphrased_text + '\n') 
+        
         print(f"Successfully saved paraphrased text to {output_path}")
     except Exception as e:
         raise ValueError(f"Error saving txt: {str(e)}")
