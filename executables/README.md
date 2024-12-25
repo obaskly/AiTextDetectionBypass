@@ -1,4 +1,4 @@
-The exe file is made for non-tech users or lazy tech-users to make things simple and easy to use.
+The exe file is made for non-tech users or lazy tech users to make things simple and easy to use.
 The executable is large so it cannot be uploaded here. You can download it from here:
 
 Download:
@@ -6,4 +6,4 @@ Download:
 
 Password: github.com/obaskly
 
-Note: The script is compiled using Pyinstaller. It might get flagged as viruses, but it's just a false positive.
+Note: The script is compiled using Pyinstaller. It might get flagged as a virus, but it's just a false positive.
