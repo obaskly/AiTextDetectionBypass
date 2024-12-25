@@ -44,7 +44,6 @@ def save_as_pdf(input_path, paraphrased_text):
         # If the output file already exists, read the existing content
         existing_text = ""
         if os.path.exists(output_path):
-            from pypdf import PdfReader
             reader = PdfReader(output_path)
             for page in reader.pages:
                 existing_text += page.extract_text() + "\n"
