@@ -41,12 +41,20 @@ def save_as_pdf(input_path, paraphrased_text):
     try:
         output_path = get_output_filename(input_path)
 
-        # Create a temporary PDF for the new chunk
-        packet = BytesIO()
-        
-        # Set up the document with margins
+        # If the output file already exists, read the existing content
+        existing_text = ""
+        if os.path.exists(output_path):
+            from pypdf import PdfReader
+            reader = PdfReader(output_path)
+            for page in reader.pages:
+                existing_text += page.extract_text() + "\n"
+
+        # Combine the existing content with the new chunk, adding an empty line between chunks
+        combined_text = existing_text.strip() + "\n\n" + paraphrased_text.strip()
+
+        # Prepare the PDF
         doc = SimpleDocTemplate(
-            packet,
+            output_path,
             pagesize=letter,
             rightMargin=72,
             leftMargin=72,
@@ -64,37 +72,14 @@ def save_as_pdf(input_path, paraphrased_text):
             firstLineIndent=24
         )
 
-        # Prepare content with a blank line between chunks
+        # Convert combined text into paragraphs
         story = []
-        if paraphrased_text.strip():
-            story.append(Paragraph(paraphrased_text, style))
-            # Add an empty line for spacing
-            story.append(Paragraph("", style))
+        for paragraph in combined_text.split("\n\n"):
+            if paragraph.strip():  # Only add non-empty paragraphs
+                story.append(Paragraph(paragraph.strip(), style))
 
-        # Build the temporary PDF
+        # Build the final PDF
         doc.build(story)
-
-        # Move to the beginning of the buffer
-        packet.seek(0)
-        new_pdf = PdfReader(packet)
-
-        # If output PDF already exists, append to it
-        if os.path.exists(output_path):
-            existing_pdf = PdfReader(output_path)
-            writer = PdfWriter()
-            for page in existing_pdf.pages:
-                writer.add_page(page)
-            for page in new_pdf.pages:
-                writer.add_page(page)
-        else:
-            # If the file does not exist, only write the new PDF
-            writer = PdfWriter()
-            for page in new_pdf.pages:
-                writer.add_page(page)
-
-        # Save the updated PDF
-        with open(output_path, "wb") as output_file:
-            writer.write(output_file)
 
         print(f"Successfully saved paraphrased text to {output_path}")
     except Exception as e:
