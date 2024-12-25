@@ -3,7 +3,10 @@ from pypdf import PdfReader
 import nltk
 import re
 
-nltk.download('punkt')
+try:
+    nltk.download('punkt')
+except:
+    nltk.download('punkt')
 
 def extract_text_from_docx(file_path):
     try:
