@@ -2,6 +2,8 @@ from docx import Document
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate
+from pypdf import PdfReader, PdfWriter
+from io import BytesIO
 import os 
 
 def get_output_filename(input_path):
@@ -38,17 +40,20 @@ def save_as_txt(input_path, paraphrased_text):
 def save_as_pdf(input_path, paraphrased_text):
     try:
         output_path = get_output_filename(input_path)
+
+        # Create a temporary PDF for the new chunk
+        packet = BytesIO()
         
-        # Create document with margins
+        # Set up the document with margins
         doc = SimpleDocTemplate(
-            output_path,
+            packet,
             pagesize=letter,
             rightMargin=72,
             leftMargin=72,
             topMargin=72,
             bottomMargin=72
         )
-        
+
         # Define paragraph style
         style = ParagraphStyle(
             'Normal',
@@ -58,17 +63,39 @@ def save_as_pdf(input_path, paraphrased_text):
             spaceAfter=12,
             firstLineIndent=24
         )
-        
-        # Convert text to paragraphs
+
+        # Prepare content with a blank line between chunks
         story = []
-        paragraphs = paraphrased_text.split('\n\n')
-        for para in paragraphs:
-            if para.strip():
-                story.append(Paragraph(para.strip(), style))
-        
-        # Build PDF
+        if paraphrased_text.strip():
+            story.append(Paragraph(paraphrased_text, style))
+            # Add an empty line for spacing
+            story.append(Paragraph("", style))
+
+        # Build the temporary PDF
         doc.build(story)
+
+        # Move to the beginning of the buffer
+        packet.seek(0)
+        new_pdf = PdfReader(packet)
+
+        # If output PDF already exists, append to it
+        if os.path.exists(output_path):
+            existing_pdf = PdfReader(output_path)
+            writer = PdfWriter()
+            for page in existing_pdf.pages:
+                writer.add_page(page)
+            for page in new_pdf.pages:
+                writer.add_page(page)
+        else:
+            # If the file does not exist, only write the new PDF
+            writer = PdfWriter()
+            for page in new_pdf.pages:
+                writer.add_page(page)
+
+        # Save the updated PDF
+        with open(output_path, "wb") as output_file:
+            writer.write(output_file)
+
         print(f"Successfully saved paraphrased text to {output_path}")
-        
     except Exception as e:
-        raise ValueError(f"Error saving pdf: {str(e)}")
+        raise ValueError(f"Error saving PDF: {str(e)}")
