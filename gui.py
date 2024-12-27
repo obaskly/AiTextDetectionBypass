@@ -1,10 +1,76 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox, QTabWidget, QTextEdit, QListWidget, QHBoxLayout
+    QApplication, QWidget, QGridLayout, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox, QTabWidget, QTextEdit, QListWidget, QHBoxLayout
 )
-from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
-from PyQt6.QtCore import Qt, QDir, QThread, pyqtSignal
+from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent, QPainter, QColor
+from PyQt6.QtCore import Qt, QDir, QThread, pyqtSignal, QRect
 from paraphraser import main
+from ai_scanner import scan_text
+
+class CircularProgress(QWidget):
+    def __init__(self, ai_percentage=0, human_percentage=100, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ai_percentage = ai_percentage
+        self.human_percentage = human_percentage
+        self.is_scanned = False  # Flag to check if the scan has been performed
+        self.setMinimumSize(50, 50)  # Set smaller size for the circle
+
+    def setPercentages(self, ai_percentage, human_percentage):
+        self.ai_percentage = ai_percentage
+        self.human_percentage = human_percentage
+        self.is_scanned = True  # Mark the scan as complete
+        self.update()  # Trigger a repaint to update the circle
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+
+        # Drawing the outer circle
+        rect = self.rect().adjusted(5, 5, -5, -5)  # Adjust for better circle size
+        painter.setBrush(QColor(255, 255, 255))  # White background
+        painter.drawEllipse(rect)
+
+        # Draw the AI part (red)
+        painter.setBrush(QColor(255, 0, 0))  # Red for AI
+        ai_angle = int((self.ai_percentage * 360 / 100))  # Convert angle to integer
+        painter.drawPie(rect, 90 * 16, ai_angle * 16)  # Angle is in 1/16ths of a degree
+
+        # Draw the Human part (green)
+        painter.setBrush(QColor(0, 255, 0))  # Green for Human
+        human_angle = int((self.human_percentage * 360 / 100))  # Convert angle to integer
+        painter.drawPie(rect, (90 + ai_angle) * 16, human_angle * 16)  # Angle is in 1/16ths of a degree
+
+        # Only display percentage text if the scan has completed
+        if self.is_scanned:
+            painter.setPen(Qt.GlobalColor.black)  # Text color (black)
+            painter.setFont(QFont('Arial', 10, QFont.Weight.Bold))
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, f"{self.ai_percentage}% AI\n{self.human_percentage}% Human")
+
+        painter.end()
+
+class CircularProgressGrid(QWidget):
+    def __init__(self, detectors, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(20)  # Adjust the spacing between items
+        
+        row = 0
+        col = 0
+        self.progress_bars = {}
+
+        for detector in detectors:
+            progress_bar = CircularProgress()
+            self.progress_bars[detector] = progress_bar
+            grid_layout.addWidget(progress_bar, row, col)
+            
+            col += 1
+            if col > 2:  # After 3 columns, move to the next row
+                col = 0
+                row += 1
+
+        self.setLayout(grid_layout)
 
 class APICaptureThread(QThread):
     current_email = pyqtSignal(str)  # Signal to update the current email being processed
@@ -31,6 +97,8 @@ class APICaptureThread(QThread):
 class ParaphrasingApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.resultLabels = {}  # This will hold references to CircularProgress widgets
+        self.detectorLabels = {}  # To hold labels for each detector
         self.initUI()
 
     def initUI(self):
@@ -161,16 +229,78 @@ class ParaphrasingApp(QWidget):
         tab = QWidget()
         layout = QVBoxLayout()
 
-        textArea = QTextEdit()
-        textArea.setPlaceholderText("Enter or paste text here...")
+        # 1. Text area for input
+        self.textArea = QTextEdit()
+        self.textArea.setPlaceholderText("Enter or paste text here...")
+        layout.addWidget(self.textArea)
 
+        # 2. Scan button
         scanButton = QPushButton('Scan')
-        scanButton.clicked.connect(lambda: QMessageBox.information(self, "Scan", "Scanning text..."))
-
-        layout.addWidget(textArea)
+        scanButton.clicked.connect(self.scanText)
         layout.addWidget(scanButton)
+
+        # 3. Create CircularProgressGrid to hold the circular progress bars
+        detectors = [
+            'scoreGptZero', 'scoreOpenAI', 'scoreWriter', 'scoreCrossPlag', 'scoreCopyLeaks',
+            'scoreSapling', 'scoreContentAtScale', 'scoreZeroGPT'
+        ]
+
+        # Add labels and CircularProgress widgets
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(20)
+
+        row = 0
+        col = 0
+        for i, detector in enumerate(detectors):
+            label = QLabel(detector)
+            progress_bar = CircularProgress(ai_percentage=0, human_percentage=100)
+            self.resultLabels[detector] = progress_bar
+            self.detectorLabels[detector] = label  # Store label reference
+            grid_layout.addWidget(label, row, col)
+            grid_layout.addWidget(progress_bar, row+1, col)
+
+            col += 1
+            if col > 2:  # After 3 columns, move to the next row
+                col = 0
+                row += 2  # Skip one row for the label
+
+        layout.addLayout(grid_layout)
+
+        # Set the layout for the tab
         tab.setLayout(layout)
         return tab
+
+    def scanText(self):
+        text = self.textArea.toPlainText().strip()
+
+        if not text:
+            QMessageBox.warning(self, 'Input Error', 'Please enter text to scan.')
+            return
+
+        api_key = "0e3640c3-7516-4c20-acb7-3fbfef5c1b3a"
+
+        # Run the AI scanner
+        detection_response = scan_text(api_key, text)
+
+        if detection_response is None:
+            QMessageBox.critical(self, 'Error', 'Failed to detect AI in the text.')
+            return
+
+        ai_percentage, detector_results = detection_response  # Assuming scan_text returns this properly
+
+        # Update the results in the GUI
+        for detector, result in detector_results.items():
+            ai_percentage = result.get('ai_percentage', 0)
+            human_percentage = result.get('human_percentage', 100)
+
+            # Ensure the CircularProgress widget exists before trying to update it
+            if detector in self.resultLabels:
+                self.resultLabels[detector].setPercentages(ai_percentage, human_percentage)
+
+        # Add final result label after the scan
+        final_result_label = QLabel(f"The AI detection result: {ai_percentage}% AI content detected in the text.")
+        final_result_label.setStyleSheet("color: red;" if ai_percentage > 50 else "color: green;")
+        self.tabs.widget(1).layout().addWidget(final_result_label)  # Add to the AI scanner tab layout
 
     def createAPIGrabberTab(self):
         tab = QWidget()
