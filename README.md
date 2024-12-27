@@ -61,7 +61,7 @@ cd AiTextDetectionBypass
 - Go to APIs & Services > Credentials.
 - Click Create Credentials > OAuth 2.0 Client IDs.
 - Choose Desktop App as the application type.
-- Download the credentials.json file once it’s created and put it in the same directory as the script.
+- Download the **credentials.json** file once it’s created and put it in the **json_files** folder.
 
 4. **Run the script**.
 
