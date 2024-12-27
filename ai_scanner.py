@@ -3,22 +3,7 @@ import json
 import os
 import time
 
-def get_api_key():
-    """Function to prompt the user for the API key."""
-    api_key = input("Enter your Undetectable.AI API key: ").strip()
-    return api_key
-
-def read_text_from_file(file_path):
-    """Reads text from a given file."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"The file at path {file_path} does not exist.")
-    
-    with open(file_path, 'r', encoding='utf-8') as file:
-        text = file.read()
-    return text
-
 def detect_ai_in_text(api_key, text):
-    """Makes a request to the AI detection API."""
     url = "https://ai-detect.undetectable.ai/detect"
     headers = {
         'accept': 'application/json',
