@@ -277,7 +277,7 @@ class ParaphrasingApp(QWidget):
             QMessageBox.warning(self, 'Input Error', 'Please enter text to scan.')
             return
 
-        api_key = "0e3640c3-7516-4c20-acb7-3fbfef5c1b3a"
+        api_key = "" # put your api jey here
 
         # Run the AI scanner
         detection_response = scan_text(api_key, text)
