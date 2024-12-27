@@ -12,32 +12,33 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 # File to persist generated variations
-VARIATIONS_FILE = 'generated_variations.json'
+VARIATIONS_FILE = os.path.join('json_files', 'generated_variations.json')
 
 def authenticate_gmail():
     creds = None
     # The token.json file stores the user's access and refresh tokens.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    token_path = os.path.join('json_files', 'token.json')
+    if os.path.exists(token_path):
+        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
     
     # If there are no valid credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())  # This was causing the error
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            credentials_path = os.path.join('json_files', 'credentials.json')
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run.
-        with open('token.json', 'w') as token:
+        token_path = os.path.join('json_files', 'token.json')
+        with open(token_path, 'w') as token:
             token.write(creds.to_json())
 
     return creds
 
 def calculate_email_variations(email):
     username, domain = email.split("@")
-    
     positions = len(username) - 1
-    
     total_variations = 2 ** positions
     return total_variations
 
