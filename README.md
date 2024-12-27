@@ -80,8 +80,8 @@ cd AiTextDetectionBypass
 
 ## TODO List
 
-- [x] Extract API keys from Gmail variations JSON and store in `apis.json`
-- [x] Implement AI detection percentage feature
+- [x] ~~Extract API keys from Gmail variations JSON and store in `apis.json`~~
+- [x] ~~Implement AI detection percentage feature~~
 - [ ] Automatically retrieve API keys from apis.json file and integrate them for AI scanning functionality.
   
 ## Script in action
