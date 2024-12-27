@@ -1,10 +1,32 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox
+    QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QFileDialog, QMessageBox, QCheckBox, QTabWidget, QTextEdit, QListWidget, QHBoxLayout
 )
 from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
-from PyQt6.QtCore import Qt, QDir
+from PyQt6.QtCore import Qt, QDir, QThread, pyqtSignal
 from paraphraser import main
+
+class APICaptureThread(QThread):
+    current_email = pyqtSignal(str)  # Signal to update the current email being processed
+    api_grabbed = pyqtSignal(str)    # Signal to add to the API results list
+    result = pyqtSignal(dict)        # Signal to send the final result or errors
+
+    def run(self):
+        try:
+            from api_grabber import main
+
+            result_message = main(
+                update_current_email=lambda email: self.current_email.emit(email),
+                update_result=lambda result: self.api_grabbed.emit(result)
+            )
+            
+            # Check if the result_message indicates an error
+            if "does not exist" in result_message or "No new emails" in result_message:
+                self.result.emit({"success": False, "message": result_message})
+            else:
+                self.result.emit({"success": True, "message": result_message})
+        except Exception as e:
+            self.result.emit({"success": False, "message": str(e)})
 
 class ParaphrasingApp(QWidget):
     def __init__(self):
@@ -12,8 +34,8 @@ class ParaphrasingApp(QWidget):
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout()
-        layout.setSpacing(10)
+        self.setWindowTitle('ParaGenie V2.0')
+        self.setGeometry(300, 300, 800, 600)
 
         self.setStyleSheet("""
             QWidget {
@@ -34,7 +56,7 @@ class ParaphrasingApp(QWidget):
             QPushButton:hover {
                 background-color: #66BB6A;
             }
-            QLineEdit, QComboBox {
+            QLineEdit, QComboBox, QTextEdit, QListWidget {
                 padding: 5px;
                 border: 1px solid #555;
                 border-radius: 4px;
@@ -43,11 +65,29 @@ class ParaphrasingApp(QWidget):
             }
         """)
 
-        self.titleLabel = QLabel('ParaGenie')
-        self.titleLabel.setFont(QFont('Orbitron', 29))
-        self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.tabs = QTabWidget()
 
-        self.titleLabel.setStyleSheet("""
+        self.paraphraserTab = self.createParaphraserTab()
+        self.aiScannerTab = self.createAIScannerTab()
+        self.apiGrabberTab = self.createAPIGrabberTab()
+
+        self.tabs.addTab(self.paraphraserTab, "Paraphraser")
+        self.tabs.addTab(self.aiScannerTab, "AI Scanner")
+        self.tabs.addTab(self.apiGrabberTab, "API Grabber")
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.tabs)
+        self.setLayout(mainLayout)
+
+    def createParaphraserTab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+        layout.setSpacing(10)
+
+        titleLabel = QLabel('ParaGenie')
+        titleLabel.setFont(QFont('Orbitron', 29))
+        titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        titleLabel.setStyleSheet(""" 
             QLabel {
                 color: qlineargradient(
                     spread: pad, 
@@ -62,61 +102,92 @@ class ParaphrasingApp(QWidget):
             }
         """)
 
-        self.purposeLabel = QLabel('Purpose of Writing:')
-        self.readabilityLabel = QLabel('Readability Level:')
-        self.filePathLabel = QLabel('Article File Path:')
-        self.emailLabel = QLabel('Email Address:')
+        purposeLabel = QLabel('Purpose of Writing:')
+        readabilityLabel = QLabel('Readability Level:')
+        toneLabel = QLabel('Tone:')
+        filePathLabel = QLabel('Article File Path:')
+        emailLabel = QLabel('Email Address:')
 
-        self.purposeComboBox = QComboBox()
+        self.purposeComboBox = QComboBox()  # Now instance variable
         self.purposeComboBox.addItems(['General Writing', 'Essay', 'Article', 'Marketing Material', 'Story', 'Cover letter', 'Report', 'Business Material', 'Legal Material'])
 
-        self.readabilityComboBox = QComboBox()
+        self.readabilityComboBox = QComboBox()  # Now instance variable
         self.readabilityComboBox.addItems(['High School', 'University', 'Doctorate', 'Journalist', 'Marketing'])
 
-        self.toneLabel = QLabel('Tone:')
-        self.toneComboBox = QComboBox()
+        self.toneComboBox = QComboBox()  # Now instance variable
         self.toneComboBox.addItems(['Balanced', 'More Human', 'More Readable'])
 
-        self.filePathLineEdit = QLineEdit()
+        self.filePathLineEdit = QLineEdit()  # Now instance variable
         self.filePathLineEdit.setPlaceholderText("Drag and drop a file here or click 'Browse'")
         self.filePathLineEdit.setAcceptDrops(True)
         self.filePathLineEdit.dragEnterEvent = self.dragEnterEvent
         self.filePathLineEdit.dropEvent = self.dropEvent
 
-        self.browseButton = QPushButton('Browse')
+        self.browseButton = QPushButton('Browse')  # Now instance variable
         self.browseButton.clicked.connect(self.browseFile)
 
-        self.emailLineEdit = QLineEdit()
+        self.emailLineEdit = QLineEdit()  # Now instance variable
         self.emailLineEdit.setPlaceholderText('Enter your email address')
 
-        self.useNltkCheckBox = QCheckBox('Use NLTK for splitting chunks')
+        self.useNltkCheckBox = QCheckBox('Use NLTK for splitting chunks')  # Now instance variable
         self.useNltkCheckBox.setChecked(False)
 
-        self.saveSameFormatCheckBox = QCheckBox('Save file in the same format')
+        self.saveSameFormatCheckBox = QCheckBox('Save file in the same format')  # Now instance variable
         self.saveSameFormatCheckBox.setChecked(False)
 
-        self.startButton = QPushButton('Start Paraphrasing')
+        self.startButton = QPushButton('Start Paraphrasing')  # Now instance variable
         self.startButton.clicked.connect(self.startParaphrasing)
 
-        layout.addWidget(self.titleLabel)
-        layout.addWidget(self.purposeLabel)
+        layout.addWidget(titleLabel)
+        layout.addWidget(purposeLabel)
         layout.addWidget(self.purposeComboBox)
-        layout.addWidget(self.readabilityLabel)
+        layout.addWidget(readabilityLabel)
         layout.addWidget(self.readabilityComboBox)
-        layout.addWidget(self.toneLabel)
+        layout.addWidget(toneLabel)
         layout.addWidget(self.toneComboBox)
-        layout.addWidget(self.filePathLabel)
+        layout.addWidget(filePathLabel)
         layout.addWidget(self.filePathLineEdit)
         layout.addWidget(self.browseButton)
-        layout.addWidget(self.emailLabel)
+        layout.addWidget(emailLabel)
         layout.addWidget(self.emailLineEdit)
         layout.addWidget(self.useNltkCheckBox)
         layout.addWidget(self.saveSameFormatCheckBox)
         layout.addWidget(self.startButton)
 
-        self.setLayout(layout)
-        self.setWindowTitle('ParaGenie V2.0')
-        self.setGeometry(300, 300, 400, 480)
+        tab.setLayout(layout)
+        return tab
+
+    def createAIScannerTab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+
+        textArea = QTextEdit()
+        textArea.setPlaceholderText("Enter or paste text here...")
+
+        scanButton = QPushButton('Scan')
+        scanButton.clicked.connect(lambda: QMessageBox.information(self, "Scan", "Scanning text..."))
+
+        layout.addWidget(textArea)
+        layout.addWidget(scanButton)
+        tab.setLayout(layout)
+        return tab
+
+    def createAPIGrabberTab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+
+        currentEmailLabel = QLabel("Current Email:")
+        currentEmailLabel.setStyleSheet("color: #00FF00; font-weight: bold;")
+        grabbedAPIsList = QListWidget()
+
+        grabButton = QPushButton('Grab')
+        grabButton.clicked.connect(lambda: self.runAPICapture(currentEmailLabel, grabbedAPIsList))
+
+        layout.addWidget(currentEmailLabel)
+        layout.addWidget(grabbedAPIsList)
+        layout.addWidget(grabButton)
+        tab.setLayout(layout)
+        return tab
 
     def browseFile(self):
         current_directory = QDir.currentPath()
@@ -158,6 +229,28 @@ class ParaphrasingApp(QWidget):
             QMessageBox.information(self, 'Success', 'Article has been paraphrased successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
+
+    def runAPICapture(self, currentEmailLabel, grabbedAPIsList):
+        def updateCurrentEmail(email):
+            # Update the current email label with the email being processed
+            currentEmailLabel.setText(f"Current Email: {email}")
+
+        def addGrabbedAPI(api_entry):
+            # Append the grabbed API or failure message to the list widget
+            grabbedAPIsList.addItem(api_entry)
+
+        def handleResult(result):
+            if result["success"]:
+                QMessageBox.information(self, "Success", "API grabbing completed successfully.")
+            else:
+                QMessageBox.warning(self, "Error", result["message"])  # Show the error message in a warning box
+
+        # Start the API capture thread
+        self.apiThread = APICaptureThread()
+        self.apiThread.current_email.connect(updateCurrentEmail)  # Update the current email label
+        self.apiThread.api_grabbed.connect(addGrabbedAPI)         # Append grabbed APIs to the list
+        self.apiThread.result.connect(handleResult)              # Handle the final result
+        self.apiThread.start()
 
 def run_app():
     app = QApplication(sys.argv)
