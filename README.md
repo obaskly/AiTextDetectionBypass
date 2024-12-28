@@ -80,6 +80,10 @@ cd AiTextDetectionBypass
 
 ## TODO List
 
+- [x] ~~Handles text extraction and processing for TXT, DOCX, and PDF file formats.~~
+- [x] ~~Choose between the default word-based splitting method or a more advanced NLTK-powered sentence-preserving approach.~~
+- [x] ~~Automates Gmail registration and verification for seamless paraphrasing.~~
+- [x] ~~Saves generated Gmail variations in a JSON file to avoid redundancy.~~
 - [x] ~~Extract API keys from Gmail variations JSON and store in `apis.json`~~
 - [x] ~~Implement AI detection percentage feature~~
 - [ ] Automatically retrieve API keys from apis.json file and integrate them for AI scanning functionality.
