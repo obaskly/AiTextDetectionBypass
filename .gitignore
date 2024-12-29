@@ -3,4 +3,4 @@ __pycache__/
 file_processing/__pycache__/
 file_processing/__pycache__/
 utils/__pycache__/
-json_files/credentials.json
+json_files/
