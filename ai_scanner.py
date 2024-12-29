@@ -7,8 +7,7 @@ def detect_ai_in_text(api_key, text):
     url = "https://ai-detect.undetectable.ai/detect"
     headers = {
         'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'YourAppName/1.0'  # Optional, add your app name or a custom header
+        'Content-Type': 'application/json'
     }
     payload = {
         'text': text,
@@ -29,7 +28,6 @@ def detect_ai_in_text(api_key, text):
         return None
 
 def get_detection_result(api_key, document_id):
-    """Queries the result of the AI detection."""
     url = "https://ai-detect.undetectable.ai/query"
     headers = {
         'accept': 'application/json',
@@ -49,15 +47,14 @@ def get_detection_result(api_key, document_id):
         return None
 
 def scan_text_for_ai(api_key, text):
-    """Scan text and return the percentage of AI detected, including individual detector scores."""
-    # Step 1: Detect AI in the text
+    # Detect AI in the text
     detection_response = detect_ai_in_text(api_key, text)
     
     if detection_response is None or detection_response.get("status") != "pending":
         print("Failed to detect AI in text.")
         return None, None
     
-    # Step 2: Get the document ID from the response
+    # Get the document ID from the response
     document_id = detection_response.get("id")
     if not document_id:
         print("No document ID returned from detection.")
@@ -68,7 +65,7 @@ def scan_text_for_ai(api_key, text):
     max_retries = 10  # Maximum number of retries (for 30 seconds total if checking every 3 seconds)
     retries = 0
     
-    # Step 3: Poll the result every 3 seconds until it's ready
+    # Poll the result every 3 seconds until it's ready
     while retries < max_retries:
         result_response = get_detection_result(api_key, document_id)
 
@@ -105,6 +102,4 @@ def scan_text_for_ai(api_key, text):
     return None, None
 
 def scan_text(api_key, text):
-    """Interface function for scanning text."""
     return scan_text_for_ai(api_key, text)
-
