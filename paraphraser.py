@@ -8,6 +8,8 @@ from selenium.webdriver.support.ui import Select
 from fake_useragent import UserAgent
 from colorama import Fore
 from plyer import notification
+from tkinter import Tk
+from tkinter.filedialog import asksaveasfilename
 
 from utils.email_utils import authenticate_gmail, generate_gmail_variation, get_gmail_service, extract_verify_link, get_message_body
 from utils.automation_utils import initialize_driver, automate_sign_in, process_confirmation_link, wait_for_confirmation_email
@@ -141,17 +143,28 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         paraphrased.click()
 
                         copied_content = pyperclip.paste()
-                        # Save in same format as input
-                        if save_same_format:  
-                            if article_file_path.lower().endswith('.docx'):
-                                save_as_docx(article_file_path, copied_content)
-                            elif article_file_path.lower().endswith('.pdf'):
-                                save_as_pdf(article_file_path, copied_content)
-                            else:
-                                save_as_txt(article_file_path, copied_content)
-                        else:
-                            save_as_txt('paraphrased.txt', copied_content)
 
+                        # File saving logic
+                        file_path = asksaveasfilename(
+                            title="Save paraphrased file",
+                            defaultextension=".txt",
+                            filetypes=[("Text files", "*.txt"), ("Word files", "*.docx"), ("PDF files", "*.pdf")]
+                        )
+
+                        if not file_path:
+                            print(f"{Fore.YELLOW}No save location selected. Skipping this chunk.")
+                            continue
+
+                        if file_path.lower().endswith('.docx'):
+                            save_as_docx(article_file_path, copied_content, save_path=file_path)
+                        elif file_path.lower().endswith('.pdf'):
+                            save_as_pdf(article_file_path, copied_content, save_path=file_path)
+                        elif file_path.lower().endswith('.txt'):
+                            save_as_txt(article_file_path, copied_content, save_path=file_path)
+                        else:
+                            print(f"{Fore.RED}Unsupported file format. Please provide a TXT, DOCX, or PDF file.")
+                            return
+                        
                         # Remove the successfully paraphrased chunk
                         article_chunks.pop(0)
                         print(f"{Fore.GREEN}Successfully paraphrased chunk. Moving to the next one.")
@@ -167,7 +180,6 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                 if driver:
                     driver.quit()
 
-
         print(f"{Fore.GREEN}\nArticle has been paraphrased successfully.")
         notification.notify(
             title="Paraphrasing Complete",
@@ -177,4 +189,3 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
     except Exception as e:
         print(f"{Fore.RED}Error during processing: {e}")
-
