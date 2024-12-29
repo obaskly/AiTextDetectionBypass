@@ -13,7 +13,7 @@ def get_output_filename(input_path):
 
 def save_as_docx(input_path, paraphrased_text, save_path=None):
     try:
-        output_path = save_path or get_output_filename(input_path)  # Use custom path if provided
+        output_path = save_path or get_output_filename(input_path)
         
         if os.path.exists(output_path):
             doc = Document(output_path)
