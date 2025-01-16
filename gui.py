@@ -277,7 +277,7 @@ class ParaphrasingApp(QWidget):
             QMessageBox.warning(self, 'Input Error', 'Please enter text to scan.')
             return
 
-        api_key = "" # put your api jey here
+        api_key = "0e3640c3-7516-4c20-acb7-3fbfef5c1b3a"
 
         # Run the AI scanner
         detection_response = scan_text(api_key, text)
@@ -342,8 +342,8 @@ class ParaphrasingApp(QWidget):
             self.filePathLineEdit.setText(file_path)
 
     def startParaphrasing(self):
-        purpose_choice = self.purposeComboBox.currentIndex() + 1
-        readability_choice = self.readabilityComboBox.currentIndex() + 1
+        purpose_choice = self.purposeComboBox.currentText()
+        readability_choice = self.readabilityComboBox.currentText()
         tone_choice = self.toneComboBox.currentText().upper().replace(' ', '_')
         article_file_path = self.filePathLineEdit.text()
         email_address = self.emailLineEdit.text()
