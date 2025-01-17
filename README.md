@@ -1,6 +1,6 @@
 # 📝 Ai Text Detection Bypass Script
 
-ParaGenie is a script that automates the process of paraphrasing articles using the undetectable.ai platform. It enables users to transform long-form content into unique paraphrased versions by splitting the input text into manageable chunks and processing each chunk individually. The script is designed with flexibility, automation, and user anonymity in mind, making it an efficient tool for paraphrasing lengthy documents.
+ParaGenie is a script that automates the process of paraphrasing articles using the undetectable.ai platform. It enables users to transform long-form content into unique paraphrased versions by splitting the input text into manageable chunks and processing each chunk individually. 
 
 ## ✨ What's New?
 
