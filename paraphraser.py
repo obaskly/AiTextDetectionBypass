@@ -99,8 +99,8 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                             pass
 
                         wait = WebDriverWait(driver, 10)
-                        purpose = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/main/div/div[2]/div[1]/div/div/div[1]/div/div[1]/div/div[1]/div[2]/select')))
-                        readability = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/main/div/div[2]/div[1]/div/div/div[1]/div/div[1]/div/div[1]/div[1]/select')))
+                        purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div[1]/div/div[1]/div[2]/select')))
+                        readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div[1]/div/div[1]/div[1]/select')))
 
                         purpose_select = Select(purpose)
                         readability_select = Select(readability)
@@ -108,7 +108,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         purpose_select.select_by_visible_text(purpose_choice)
                         readability_select.select_by_visible_text(readability_choice)
 
-                        textarea = driver.find_element(By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div/div[2]/div/textarea')
+                        textarea = driver.find_element(By.CSS_SELECTOR, 'textarea[aria-label="input-detector-textarea"]')
                         textarea.clear()
                         textarea.send_keys(chunk)
 
