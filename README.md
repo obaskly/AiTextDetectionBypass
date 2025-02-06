@@ -93,3 +93,6 @@ cd AiTextDetectionBypass
 
 https://github.com/obaskly/AiTextDetectionBypass/assets/11092871/7fc4ccf0-d97f-43dd-a987-9b7e6812c174
 
+## Contact
+
+- Telegram: **https://t.me/Anon040**
