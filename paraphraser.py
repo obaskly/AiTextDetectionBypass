@@ -1,10 +1,12 @@
 import random
 import pyperclip
-from selenium.common.exceptions import TimeoutException
+import time
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 from fake_useragent import UserAgent
 from colorama import Fore
 from plyer import notification
@@ -88,12 +90,12 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
 
                         # Remove the banner if it exists
                         try:
-                            banner = WebDriverWait(driver, 5).until(
-                                EC.presence_of_element_located((By.CLASS_NAME, 'iubenda-banner-content'))
+                            banner = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.CLASS_NAME, 'iubenda-cs-content'))
                             )
                             if banner:
                                 print(f"{Fore.YELLOW}Banner detected. Removing it.")
-                                driver.execute_script("document.querySelector('.iubenda-banner-content').style.display = 'none';")
+                                driver.execute_script("document.querySelector('.iubenda-cs-content').remove();")
                         except TimeoutException:
                             # Banner not present, continue normally
                             pass
@@ -109,10 +111,24 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         readability_select.select_by_visible_text(readability_choice)
                         time.sleep(0.3)
                         purpose_select.select_by_visible_text(purpose_choice)
+                        time.sleep(0.3)
                         
                         textarea = driver.find_element(By.CSS_SELECTOR, 'textarea[aria-label="input-detector-textarea"]')
                         textarea.clear()
                         textarea.send_keys(chunk)
+
+                        time.sleep(0.5)
+
+                        try:
+                            terms = wait.until(EC.element_to_be_clickable((By.ID, 'terms-tooltip')))
+                            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", terms)
+                            driver.execute_script("arguments[0].click();", terms)
+                        except StaleElementReferenceException:
+                            print("Terms box became stale, retrying...")
+                            terms = driver.find_element(By.ID, 'terms-tooltip')
+                            ActionChains(driver).move_to_element(terms).click().perform()
+
+                        time.sleep(0.3)
 
                         try:
                             tone_element = WebDriverWait(driver, 10).until(
@@ -123,11 +139,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         except Exception as e:
                             print(f"{Fore.RED}Error selecting tone: {e}. Defaulting to More Human.")
 
-                        terms = driver.find_element(By.XPATH, '/html/body/main/div/div[2]/div[1]/div/div/div[2]/div[1]/div/input')
-                        driver.execute_script("arguments[0].click();", terms)
-
                         humanize = driver.find_element(By.ID, 'detector-humanize-btn')
-                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", humanize)
                         driver.execute_script("arguments[0].click();", humanize)
 
                         # Check for the "not enough words" popup
