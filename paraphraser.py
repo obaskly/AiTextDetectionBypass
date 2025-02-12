@@ -99,15 +99,17 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                             pass
 
                         wait = WebDriverWait(driver, 10)
-                        purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div[1]/div/div[1]/div[2]/select')))
+
                         readability = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div[1]/div/div[1]/div[1]/select')))
+                        purpose = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="scrollElement"]/div/div/div[1]/div[1]/div/div[1]/div[2]/select')))
 
-                        purpose_select = Select(purpose)
                         readability_select = Select(readability)
-
-                        purpose_select.select_by_visible_text(purpose_choice)
+                        purpose_select = Select(purpose)
+                        
                         readability_select.select_by_visible_text(readability_choice)
-
+                        time.sleep(0.3)
+                        purpose_select.select_by_visible_text(purpose_choice)
+                        
                         textarea = driver.find_element(By.CSS_SELECTOR, 'textarea[aria-label="input-detector-textarea"]')
                         textarea.clear()
                         textarea.send_keys(chunk)
@@ -124,7 +126,8 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         terms = driver.find_element(By.XPATH, '/html/body/main/div/div[2]/div[1]/div/div/div[2]/div[1]/div/input')
                         driver.execute_script("arguments[0].click();", terms)
 
-                        humanize = driver.find_element(By.ID, 'humanize-tooltip')
+                        humanize = driver.find_element(By.ID, 'detector-humanize-btn')
+                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", humanize)
                         driver.execute_script("arguments[0].click();", humanize)
 
                         # Check for the "not enough words" popup
@@ -140,7 +143,7 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                             pass
 
                         # Successfully paraphrased the chunk
-                        paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="copy-output"]')))
+                        paraphrased = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, 'document-copy-to-clipboard-btn')))
                         paraphrased.click()
 
                         copied_content = pyperclip.paste()
