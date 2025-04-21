@@ -1,4 +1,4 @@
-import docx
+from docx import Document
 from pypdf import PdfReader
 import nltk
 import re
@@ -10,7 +10,7 @@ except:
 
 def extract_text_from_docx(file_path):
     try:
-        doc = docx.Document(file_path)
+        doc = Document(file_path)
         raw_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
         return format_text(raw_text)
     except Exception as e:

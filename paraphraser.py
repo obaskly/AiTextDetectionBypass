@@ -1,6 +1,7 @@
 import random
 import pyperclip
 import time
+import re
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -23,6 +24,15 @@ tone_xpath = {
     "MORE_READABLE": "//div[contains(text(),'MORE READABLE')]"
 }
 
+# Add this new function to sanitize text
+def sanitize_text_for_chromedriver(text):
+    """
+    Remove characters outside the Basic Multilingual Plane (BMP) that ChromeDriver doesn't support.
+    This includes emojis and certain rare characters.
+    """
+    # This regex pattern matches any character outside the BMP range (U+0000 to U+FFFF)
+    return re.sub(r'[^\u0000-\uFFFF]', '', text)
+
 def main(purpose_choice, readability_choice, article_file_path, base_email, use_nltk, save_same_format, tone_choice):
     driver = None
     try:
@@ -36,6 +46,9 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
         else:
             print(f"{Fore.RED}Unsupported file format. Please provide a TXT, DOCX, or PDF file.")
             return
+
+        # Sanitize the input text to remove non-BMP characters
+        article_text = sanitize_text_for_chromedriver(article_text)
 
         # Split the article into chunks based on user choice
         if use_nltk:
@@ -115,7 +128,9 @@ def main(purpose_choice, readability_choice, article_file_path, base_email, use_
                         
                         textarea = driver.find_element(By.CSS_SELECTOR, 'textarea[aria-label="input-detector-textarea"]')
                         textarea.clear()
-                        textarea.send_keys(chunk)
+                        # Sanitize the chunk again before sending to textarea
+                        sanitized_chunk = sanitize_text_for_chromedriver(chunk)
+                        textarea.send_keys(sanitized_chunk)
 
                         time.sleep(0.5)
 
